@@ -38,6 +38,8 @@ _-_ [Union Types](#ref_union_types)
 
 # Agenda (2/2)
 
+_-_ [Contextual Abstractions](#ref_contextual_abstractions)
+_-_ [Implicit Conversions](#ref_implicit_conversions)
 _-_ [Extension Methods](#ref_extension_methods)
 _-_ [Givens](#ref_givens)
 _-_ [Context Bounds](#ref_context_bounds)
@@ -390,6 +392,7 @@ val sb =
 
 - Traits can have parameters like classes.
 - Arguments are evaluated before the trait is initialized.
+- They replace early iniitalizers in Scala 2 traits, which have been dropped.
 
 <br/>
 
@@ -588,7 +591,9 @@ val count = tree.count // 3
 
 <a name="ref_intersection_types"/>
 
-# Intersection Types
+# Intersection Types[^13]
+
+[^13]: [https://dotty.epfl.ch/docs/reference/new-types/intersection-types.html](https://dotty.epfl.ch/docs/reference/new-types/intersection-types.html)
 
 ---
 
@@ -638,7 +643,9 @@ def f(x: ResetGrowable[Int]) =
 
 <a name="ref_union_types"/>
 
-# Union Types
+# Union Types[^14]
+
+[^14]: [https://dotty.epfl.ch/docs/reference/new-types/union-types.html](https://dotty.epfl.ch/docs/reference/new-types/union-types.html)
 
 ---
 
@@ -678,9 +685,130 @@ val either: Password | UserName =
 
 ---
 
+<a name="ref_contextual_abstractions"/>
+
+# Contextual Abstractions[^15]
+
+[^15]: [https://dotty.epfl.ch/docs/reference/contextual/motivation.html](https://dotty.epfl.ch/docs/reference/contextual/motivation.html)
+
+---
+
+## Implicits
+
+- Implicits are the fundamental way to abstract over context in Scala 2.
+- Hard to understand, error-prone, easily mis-used or overused, many rough edges.
+- Implicits convey mechanism over intent.
+- One mechanism used for many different purposes:
+  - implicit conversions
+  - extension methods
+  - providing context
+  - dependency injection
+  - typeclasses
+
+---
+
+## The new Design in Scala 3
+
+- Focus on intent over mechanism
+- Implicit conversions are hard to mis-use.
+- Concise syntax for extension methods
+- New keyword _given_
+- _given_ instances focus on types instead of terms.
+- _given_ clauses replace _implicit_ parameters.
+- _given_ imports are distict from regular imports.
+- Typeclasses can be expressed in a more concise way (also due to the new extension methods).
+- Context bounds remain unchanged in syntax and semantics.
+- Typeclass derivation is supported.
+- Implicit Function Types provide a way to abstract over given clauses.
+- Implicit By-Name Parameters are an essential tool to define recursive synthesized values without looping.
+- Scala 2 implicits remain available in parallel for a long time.
+
+---
+
+<a name="ref_implicit_conversions"/>
+
+# Implicit Conversions[^16]
+
+[^16]: [https://dotty.epfl.ch/docs/reference/contextual/conversions.html](https://dotty.epfl.ch/docs/reference/contextual/conversions.html)
+
+---
+
+## Implicit Conversions
+
+- _scala.Conversion_ is a subclass of _Function1_.
+
+```scala
+package scala
+abstract class Conversion[-T, +U] extends (T => U)
+```
+
+- Implicit Conversions must derive _Conversion_.
+
+```scala
+case class Token(str: String)
+given Conversion[String, Token]
+  def apply(str: String): Token = Token(str)
+```
+
+or even more concise:
+
+```scala
+case class Token(str: String)
+given Conversion[String, Token] = Token(_)
+```
+
+---
+
+## Implicit Conversion in Scala 2:
+
+<br/>
+<br/>
+
+```scala
+case class Token(str: String)
+
+implicit def stringToToken(str: String): Token = Token(str)
+```
+
+<br/>
+<br/>
+Syntax can easily be mixed up with other implicit constructs.
+<br/>
+<br/>
+
+---
+
 <a name="ref_extension_methods"/>
 
-# Extension Methods
+# Extension Methods[^17]
+
+[^17]: [https://dotty.epfl.ch/docs/reference/contextual/extension-methods.html](https://dotty.epfl.ch/docs/reference/contextual/extension-methods.html)
+
+---
+
+## Extension Methods
+
+- Extension methods are methods that have a parameter clause in front of the defined identifier.
+- They translate to methods where the leading parameter section is moved to after the defined identifier.
+- They can be invoked both ways:
+  _method(param)_  or _param.method_
+- They replace implicit classes of Scala 2.
+
+---
+
+## Extension Methods
+
+```scala
+case class Circle(x: Double, y: Double, radius: Double)
+
+def (c: Circle) circumference: Double = c.radius * math.Pi * 2
+
+val circle = Circle(0, 0, 1)
+
+val cf1 = circle.circumference
+val cf2 = circumference(circle)
+assert(cf1 == cf2)
+```
 
 ---
 
