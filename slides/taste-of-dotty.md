@@ -596,20 +596,42 @@ val count = tree.count // 3
 
 - Used on types, the _&_ operator creates an intersection type.
 - The type _S & T_ represents values that are of the type _S_ and _T_ at the same time.
+- _S & T_ has all members of _S_ and all members of _T_.
+- _&_ is commutative: _S & T_ is the same type as _T & S_.
 
 <br/>
 
 ```scala
-trait Resettable {
+trait Resettable
   def reset(): this.type
-}
-trait Growable[T] {
+
+trait Growable[T]
   def add(x: T): this.type
-}
-def f(x: Resettable & Growable[String]) = {
+
+type ResetGrowable[T] =
+  Resettable & Growable[T]
+```
+
+---
+
+```scala
+class MyClass(var x : Int = 0) extends Resettable with Growable[Int]
+  def reset() =
+    x = 0
+    this
+  def add(x: Int) =
+    this.x += x
+    this
+
+def f(x: ResetGrowable[Int]) =
   x.reset()
-  x.add("first")
-}
+  x.add(-21)
+
+@main def testIntersect: Unit =
+  val obj = new MyClass(42) // 42
+  obj.reset() // 0
+  obj.add(10) // 10
+  f(obj) // 21
 ```
 
 ---
@@ -617,6 +639,42 @@ def f(x: Resettable & Growable[String]) = {
 <a name="ref_union_types"/>
 
 # Union Types
+
+---
+
+## Union Types
+
+<br/>
+
+- A union type _A | B_ comprises all values of type _A_ and also all values of type _B_.
+- Union types are duals of intersection types.
+- _|_ is commutative: _A | B_ is the same type as _B | A_.
+- Union types will - in the long run - replace compound types: _A with B_
+- _with_ ist not commutative.
+
+<br/>
+<br/>
+
+---
+
+```scala
+type Hash = Int
+
+case class UserName(name: String)
+case class Password(hash: Hash)
+
+def help(id: UserName | Password): String =
+  id match
+    case UserName(name) => name
+    case Password(hash) => hash.toString
+
+val name: UserName = UserName("Eve")
+
+val password: Password = Password(123)
+
+val either: Password | UserName =
+  if (true) name else password
+```
 
 ---
 
