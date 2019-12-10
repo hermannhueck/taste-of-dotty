@@ -148,6 +148,8 @@ lazy val root = project
 <br/>
 ## project/plugin.sbt
 
+<br/>
+
 ```scala
 // sbt-dotty plugin
 addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
@@ -157,6 +159,8 @@ addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
 
 <br/>
 ## project/build.properties
+
+<br/>
 
 ```scala
 // change to latest sbt version
