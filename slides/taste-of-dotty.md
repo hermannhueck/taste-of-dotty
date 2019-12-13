@@ -42,8 +42,6 @@ _-_ [Contextual Abstractions](#ref_contextual_abstractions)
 _-_ [Implicit Conversions](#ref_implicit_conversions)
 _-_ [Extension Methods](#ref_extension_methods)
 _-_ [Givens](#ref_givens)
-_-_ [Context Bounds](#ref_context_bounds)
-_-_ [Given Imports](#ref_given_imports)
 _-_ [Typeclasses](#ref_typeclasses)
 _-_ [Resources](#ref_resources)
 
@@ -822,15 +820,221 @@ assert(cf1 == cf2)
 
 ---
 
-<a name="ref_context_bounds"/>
+## Givens
 
-# Context Bounds
+- _given_ is a new keyword.
+- _given_'s in many ways replace implicits.
+- more concise, less boilerplate
+- focusses on types instead of terms.
 
 ---
 
-<a name="ref_given_imports"/>
+## Givens: _Future_ Example 1
 
-# Given Imports
+- _Future_ requires a _given_ _ExecutionContext_ in nearly every method.
+<br/>
+
+```scala
+import scala.concurrent.{Future, ExecutionContext}
+
+// implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
+given ec: ExecutionContext = ExecutionContext.global
+
+def someComputation(): Int = ???
+val future: Future[Int] = Future { someComputation() }
+
+future onComplete {
+  case Success(value) => println(value)
+  case Failure(throwable) => println(throwable)
+}
+```
+
+---
+
+## Givens: _Future_ Example 2
+
+- This example provides the _ExecutionContext_ via _import_.
+<br/>
+
+```scala
+import scala.concurrent.{Future, ExecutionContext}
+
+// import ExecutionContext.Implicits.global // Scala 2
+import ExecutionContext.Implicits.{given ExecutionContext}
+
+def someComputation(): Int = ???
+val future: Future[Int] = Future { someComputation() }
+
+future onComplete {
+  case Success(value) => println(value)
+  case Failure(throwable) => println(throwable)
+}
+```
+
+---
+
+## Given Instances: _Ord_ Example
+
+<br/>
+
+```scala
+// a type class
+trait Ord[T] {
+  def compare(x: T, y: T): Int
+  def (x: T) < (y: T) = compare(x, y) < 0
+  def (x: T) > (y: T) = compare(x, y) > 0
+}
+```
+
+<br/>
+
+Typeclass instances to be defined as _given_'s ...
+
+---
+
+## _given_ Instances
+
+<br/>
+
+- Replace _implicit val_'s, _def_'s and _object_'s.
+- They can be defined with only a type omitting a name/symbol.
+- Symbols - if omitted - are synthesized by the compiler.
+
+---
+
+## _given_ Instances for _Ord_
+
+```scala
+// instances with symbols
+given intOrd: Ord[Int]
+  def compare(x: Int, y: Int) = ???
+
+given listOrd[T](given ord: Ord[T]): Ord[List[T]]
+  def compare(xs: List[T], ys: List[T]): Int = ???
+
+```
+
+<br/>
+
+```scala
+// instance without symbols
+given Ord[Int]
+  def compare(x: Int, y: Int) = ???
+
+given [T](given Ord[T]): Ord[List[T]]
+  def compare(xs: List[T], ys: List[T]): Int = ???
+```
+
+---
+
+## _given_ Clauses
+
+<br/>
+
+- Replace the implicit parameter list.
+- Multiple _given_ clauses are allowed.
+- Anonymous _given_'s: Symbols are optional.
+- _given_ instances can be summoned with the function _summon_.
+- _summon_ replaces Scala 2's _implicitly_.
+
+---
+
+## _given_ Clauses using Symbols
+
+```scala
+def max[T](x: T, y: T)(given ord: Ord[T]): T =
+  if (ord.compare(x, y) < 0) y else x
+
+def maximum[T](xs: List[T])(given Ord[T]): T =
+  xs.reduceLeft(max)
+
+def descending[T](given asc: Ord[T]): Ord[T] = new Ord[T] {
+  def compare(x: T, y: T) = asc.compare(y, x)
+}
+
+def minimum[T](xs: List[T])(given Ord[T]) =
+  maximum(xs)(given descending)
+```
+
+---
+
+## Anonymous _given_ Clauses (without Symbols)
+
+```scala
+def max[T](x: T, y: T)(given Ord[T]): T =
+  if (summon[Ord[T]].compare(x, y) < 0) y else x
+
+def maximum[T](xs: List[T])(given Ord[T]): T =
+  xs.reduceLeft(max)
+
+def descending[T](given Ord[T]): Ord[T] = new Ord[T] {
+  def compare(x: T, y: T) = summon[Ord[T]].compare(y, x)
+}
+
+def minimum[T](xs: List[T])(given Ord[T]) =
+  maximum(xs)(given descending)
+```
+
+---
+
+## Usages
+
+- When passing a _given_ explicitly, the _given_ is required in front of the symbol.
+
+<br/>
+
+```scala
+val xs = List(1, 2, 3)
+
+max(2, 3) // max of two Ints
+max(2, 3)(given intOrd) // max of two Ints - passing the given explicitly
+
+max(xs, Nil) // max of two Lists
+minimum(xs) // minimum element of a List
+maximum(xs)(given descending) // maximum element of a List (in desc order)
+```
+
+---
+
+## Context Bounds
+
+- These remain nearly unchanged.
+- A context bound is syntactic sugar for the last given clause of a method.
+
+<br/>
+
+```scala
+// using an anonymous given
+def maximum[T](xs: List[T])(given Ord[T]): T =
+  xs.reduceLeft(max)
+```
+
+```scala
+// using context bound
+def maximum[T: Ord](xs: List[T]): T =
+  xs.reduceLeft(max)
+```
+
+---
+
+## Given Imports
+
+```scala
+object A
+  class TC
+  given tc: TC
+  def f(given TC) = ???
+
+object B
+  import A._ // imports all members of A except the given instances
+  import A.given // imports only that given instances of A
+
+object C
+  import A.{given, _} // import givens and non-givens with a single import
+
+object D
+  import A.{given A.TC} // importing by type
+```
 
 ---
 
