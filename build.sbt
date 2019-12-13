@@ -25,11 +25,25 @@ lazy val root = project
 
 lazy val `taste-of-dotty` = project
   .in(file(projectName))
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     name := projectName,
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "build",
     libraryDependencies ++= Seq(
-      "com.novocode" % "junit-interface" % "0.11" % "test"
-    ),
+      "com.novocode" % "junit-interface" % "0.11" % Test
+    ) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) =>
+          Seq(
+            "org.typelevel" %% "cats-core" % "2.0.0",
+            // https://github.com/typelevel/kind-projector
+            compilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
+          )
+        case _ =>
+          Seq.empty
+      }
+    },
     scalacOptions ++= {
       val sv = scalaVersion.value
       println(s"\n>>>>>          compiling for Scala $sv\n")
