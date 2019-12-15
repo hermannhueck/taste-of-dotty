@@ -1,40 +1,50 @@
 package dotty.samples.context
 
-trait Monad[F[_]] {
+trait Functor[F[_]] {
+  def [A, B](x: F[A]) map (f: A => B): F[B]
+}
+
+// trait Monad[F[_]] extends Functor[F] { // use _ or ? for wildcard type
+trait Monad[F[?]] extends Functor[F] {
 
   // intrinsic abstract methods for Monad
 
-  def [A](a: A) pure: F[A]
+  def pure[A](a: A): F[A]
   def [A, B](fa: F[A]) flatMap (f: A => F[B]): F[B]
 
   // other concrete methods
 
-  final def [A, B] (fa: F[A]) map(f: A => B): F[B] =
-    flatMap(fa)(a => pure(f(a)))
+  override def [A, B] (fa: F[A]) map (f: A => B): F[B] =
+    flatMap(fa)(f andThen pure)
 
-  final def [A](fa: F[F[A]]) flatten: F[A] =
+  def [A](fa: F[F[A]]) flatten: F[A] =
     flatMap(fa)(identity)
 }
 
 object Monad {
 
   given Monad[List]
-    override def [A](a: A) pure: List[A] =
-      List(a)
+    override def pure[A](a: A): List[A] = List(a)
     override def [A, B](list: List[A]) flatMap (f: A => List[B]): List[B] =
       list flatMap f
 
   given Monad[Option]
-    override def [A](a: A) pure: Option[A] =
-      Option(a)
+    override def pure[A](a: A): Option[A] = Some(a)
     override def [A, B](option: Option[A]) flatMap (f: A => Option[B]): Option[B] =
       option flatMap f
   
   given [L]: Monad[[R] =>> Either[L, R]]
-    def [A](a: A) pure: Either[L, A] =
-      Right(a)
+    def pure[A](a: A): Either[L, A] = Right(a)
     def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
       fa flatMap f
+
+  /*
+  // placeholder * not yet supported in current nightly at 2019-12-14
+  given [L]: Monad[Either[L, *]]
+    def pure[A](a: A): Either[L, A] = Right(a)
+    def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
+      fa flatMap f
+  */
 } 
  
 
@@ -57,7 +67,7 @@ import util._
   println("----- List:")
 
   val l1 = List(1, 2, 3)
-  val l2 = List(10, 20, 30, 40)
+  val l2 = List(10, 20, 30)
 
   val lResult = compute(l1, l2)
   println(lResult)
@@ -78,8 +88,8 @@ import util._
 
   println("----- Either:")
 
-  val e1 = Right(13).withLeft[String]
-  val e2 = Right(21).withLeft[String]
+  val e1 = Right(1).withLeft[String]
+  val e2 = Right(10).withLeft[String]
 
   val eResult = compute(e1, e2)
   println(eResult)
