@@ -48,7 +48,7 @@ lazy val `taste-of-dotty` = project
       val sv = scalaVersion.value
       println(s"\n>>>>>          compiling for Scala $sv\n")
       if (sv.startsWith("0."))
-        Seq("-strict")
+        Seq("-strict", "-Ykind-projector", "-Yexplicit-nulls")
       else
         Seq.empty
     }
