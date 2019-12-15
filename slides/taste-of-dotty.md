@@ -1460,6 +1460,83 @@ val bString = b.aString ensuring (_ == 42.toString)
 
 ---
 
+### Explicit Nulls
+
+- Explicit nulls are an opt-in feature, enabled via the _-Yexplicit-nulls_ compiler flag.
+- This modifies the Scala type system, making reference types (anything that extends AnyRef) non-nullable.
+- Explicit nulls change the type hierarchy, so that Null is subtype only of Any, as opposed to every reference type.
+- After erasure, Null remains a subtype of all reference types (as forced by the JVM).
+
+<br/>
+
+```scala
+// error: found `Null`,  but required `String`
+val s1: String = null
+
+// Ok
+val s2: String | Null = null
+```
+
+---
+
+### Explicit Nulls: Unsoundness
+
+- There are still instances where an expression has a non-nullable type like String, but its value is null.
+- The unsoundness happens because uninitialized fields in a class start out as null.
+
+<br/>
+
+```scala
+class C {
+  val f: String = foo(f)
+  def foo(f2: String): String = if (f2 == null) "field is null" else f2
+}
+val c = new C()
+// c.f == "field is null"
+```
+
+---
+
+### Explicit Nulls: Equality Checks
+
+- Comparison between AnyRef and Null (using _==_, _!=_, _eq_ or _ne_) is no longer allowed.
+- _null_ can only be compared with _Null_, nullable union _(T | Null)_, or _Any_ type.
+
+```scala
+val x: String = ???
+val y: String | Null = ???
+
+x == null       // error: Values of types String and Null cannot be compared with == or !=
+x eq null       // error
+"hello" == null // error
+
+y == null       // ok
+y == x          // ok
+
+(x: String | Null) == null  // ok
+(x: Any) == null            // ok
+```
+
+---
+
+### Working with Nulls
+
+- An extension method .nn to "cast away" nullability.
+- This is a proposal, not yet implemented as of 2019-12-15.
+
+```scala
+val strOrNull: String|Null = "foo"
+val str: String = strOrNull.nn
+```
+
+### Java Interop
+
+- Java reference types (loaded from source or from byte code) are always nullable.
+- E.g. a Java value or method returning _String_ is patched to return _String|JavaNull_.
+- _JavaNull_ is an alias for _Null_ with 'magic properties' (see [documentation](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)).
+
+---
+
 <a name="ref_typeclass_derivation"/>
 
 # Typeclass derivation
