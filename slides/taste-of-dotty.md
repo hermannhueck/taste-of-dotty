@@ -42,6 +42,7 @@ _-_ [Contextual Abstractions](#ref_contextual_abstractions)
 _-_ [Implicit Conversions](#ref_implicit_conversions)
 _-_ [Extension Methods](#ref_extension_methods)
 _-_ [Givens](#ref_givens)
+_-_ [Type Lambdas](#ref_type_lambdas)
 _-_ [Typeclasses](#ref_typeclasses)
 _-_ [Resources](#ref_resources)
 
@@ -979,7 +980,7 @@ def minimum[T](xs: List[T])(given Ord[T]) =
 
 ## Usages
 
-- When passing a _given_ explicitly, the _given_ is required in front of the symbol.
+- When passing a _given_ explicitly, the keyword _given_ is required in front of the symbol.
 
 <br/>
 
@@ -1038,9 +1039,436 @@ object D
 
 ---
 
+<a name="ref_type_lambdas"/>
+
+# Type Lambdas
+
+---
+
+## Type Lambdas
+
+- Type Lambdas are new feature in Scala 3.
+- Type Lambdas can be expressed in Scala 2 using a weird syntax with existiential types and type projections.
+- The _kind-projector_ compiler plugin brought a more convenient type lambda syntax to Scala 2.
+- Existential types and type projections are dropped from Scala 3.
+- Type lambdas remove the need for _kind-projector_.
+
+---
+
+## Type Lambdas
+
+- A type lambda lets one express a higher-kinded type directly, without a type definition.
+- Type parameters of type lambdas can have variances and bounds.
+
+<br/>
+
+A parameterized type definition or declaration such as
+
+```scala
+type T[X] = (X, X)
+```
+
+is a shorthand for a plain type definition with a type-lambda as its right-hand side:
+
+```scala
+type T = [X] =>> (X, X)
+```
+
+---
+
+### Type Lambda Example: Either Monad Instance
+
+```scala
+// Scala 2 without kind-projector
+implicit def eitherMonad[L]: Monad[({type lambda[x] = Either[L, x]})#lambda] = ...
+
+// Scala 2 using kind-projector
+implicit def eitherMonad[L]: Monad[lambda[x => Either[L, x]]] = ...
+
+// Scala 2 using kind-projector with ? syntax
+implicit def eitherMonad[L]: Monad[Either[L, ?]] = ...
+
+// Scala 3 using a type lambda
+given eitherMonad[L]: Monad[[R] =>> Either[L, R]] { ... }
+
+// Scala 3 using compiler option -Ykind-projector
+given eitherMonad[L]: Monad[Either[L, *]] { ... }
+```
+
+---
+
 <a name="ref_typeclasses"/>
 
-# Typeclasses
+# Typeclasses: Monad Example
+
+---
+
+### Typeclasses: Monad Trait
+
+- The previous type class _Ord_ defined an Ordering for some type _A_.
+- _Ord_ was polymorphic and parameterized with type _A_.
+- _Functor_ and _Monad_ are parameterized with the higher-kinded type _F[_]_. (Higher-kinded polymorphism)
+
+```scala
+trait Functor[F[_]] {
+  def [A, B](x: F[A]) map (f: A => B): F[B]
+}
+trait Monad[F[_]] extends Functor[F] {
+  def pure[A](a: A): F[A]
+  def [A, B](fa: F[A]) flatMap (f: A => F[B]): F[B]
+  override def [A, B] (fa: F[A]) map (f: A => B): F[B] =
+    flatMap(fa)(f andThen pure)
+}
+```
+
+---
+
+### Typeclasses: Monad Instances
+
+```scala
+object Monad {
+
+  given Monad[List]
+    override def pure[A](a: A): List[A] = List(a)
+    override def [A, B](list: List[A]) flatMap (f: A => List[B]): List[B] =
+      list flatMap f
+
+  given Monad[Option]
+    override def pure[A](a: A): Option[A] = Some(a)
+    override def [A, B](option: Option[A]) flatMap (f: A => Option[B]): Option[B] =
+      option flatMap f
+  
+  given [L]: Monad[[R] =>> Either[L, R]]
+    def pure[A](a: A): Either[L, A] = Right(a)
+    def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
+      fa flatMap f
+} 
+```
+
+---
+
+### Typeclasses: Using the Monad Instances
+
+```scala
+def compute[F[_]: Monad](fInt1: F[Int], fInt2: F[Int]): F[(Int, Int)] =
+  for
+    i1 <- fInt1
+    i2 <- fInt2
+  yield (i1, i2)
+
+val l1 = List(1, 2, 3)
+val l2 = List(10, 20, 30)
+val lResult = compute(l1, l2) // List((1,10), (1,20), (1,30), (2,10), (2,20), (2,30), (3,10), (3,20), (3,30))
+
+val o1 = Option(1)
+val o2 = Option(10)
+val oResult = compute(o1, o2) // Some((1,10))
+
+val e1 = Right(1).withLeft[String]
+val e2 = Right(10).withLeft[String]
+val eResult = compute(e1, e2) // Right((1,10))
+```
+
+---
+
+<a name="ref_opaque_type_aliases"/>
+
+# Opaque Type Aliases
+
+---
+
+## Opaque Type Aliases
+
+- Opaque types aliases provide type abstraction without any overhead.
+- No Boxing !!!
+- They are defined like normal type aliases, but prefixed with the new keyword _opaque_.
+- They must be defined within the scope of an object, trait or class.
+- The alias definition is visible only within the scope.
+- Outside the scope only the defined alias is visible.
+- Opaque type aliases are compiled away and have no runtime overhead.
+
+---
+
+```scala
+object Geometry {
+  opaque type Length = Double
+  opaque type Area = Double
+
+  enum Shape
+    case Circle(radius: Length)
+    case Rectangle(width: Length, height: Length)
+
+    def area: Area = this match
+      case Circle(r) => math.Pi * r * r
+      case Rectangle(w, h) => w * h
+    def circumference: Length = this match
+      case Circle(r) => 2 * math.Pi * r
+      case Rectangle(w, h) => 2 * w + 2 * h
+
+  object Length { def apply(d: Double): Length = d }
+  object Area { def apply(d: Double): Area = d }
+
+  def (length: Length) l2Double: Double = length
+  def (area: Area) a2Double: Double = area
+}
+```
+
+---
+
+- Outside the _object Geometry_ only the types _Length_ and _Area_ are known.
+- These types are not compatible with _Double_.
+- A _Double_ value cannot be assigned to a variable of type _Area_.
+- An _Area_ value cannot be assigned to a variable of type _Double_.
+  
+<br/>
+
+```scala
+import Geometry._
+import Geometry.Shape._
+
+val circle = Circle(Length(1.0))
+
+val cArea: Area = circle.area
+val cAreaDouble: Double = cArea.a2Double
+
+val cCircumference: Length = circle.circumference
+val cCircumferenceDouble: Double = cCircumference.l2Double
+```
+
+---
+
+<a name="ref_implicit_function_types"/>
+
+# Implicit Function Types
+
+---
+
+## Implicit Function Types
+
+- Implicit functions are functions with (only) implicit parameters.
+- Their types are implicit function types with their parameters preceeded with the keyword _given_.
+
+## Implicit Function Literals
+
+- Like their types, implicit function literals are also prefixed with _given_.
+- They differ from normal function literals in two ways:
+  - Their parameters are defined with a given clause.
+  - Their types are implicit function types.
+
+---
+
+### Example with _ExecutionContext_
+
+```scala
+type Executable[T] = (given ExecutionContext) => T
+
+given ec: ExecutionContext = ExecutionContext.global
+
+def f(x: Int): Executable[Int] = {
+  val result: AtomicInteger = AtomicInteger(0)
+  def runOnEC(given ec: ExecutionContext) =
+    ec.execute(() => result.set(x * x)) // execute a Runnable
+    Thread.sleep(100L) // wait for the Runnable to be executed
+    result.get
+  runOnEC
+}
+
+val res1 = f(2)(given ec)   //=> 4 // ExecutionContext passed explicitly
+val res2 = f(2)             //=> 4 // ExecutionContext resolved implicitly
+```
+
+---
+
+### Example: Postconditions
+
+```scala
+object PostConditions {
+
+  opaque type WrappedResult[T] = T
+
+  def result[T](given r: WrappedResult[T]): T = r
+
+  def [T](x: T) ensuring(condition: (given WrappedResult[T]) => Boolean): T =
+    assert(condition(given x))
+    x
+}
+
+import PostConditions.{ensuring, result}
+
+val sum = List(1, 2, 3).sum.ensuring(result == 6)
+```
+
+---
+
+<a name="ref_dependent_function_types"/>
+
+# Dependent Function Types
+
+---
+
+## Dependent Function Types
+
+- In a dependent method the result type refers to a parameter of the method. 
+- Scala 2 already provides dependent methods (but not dependent functions).
+- Dependent methods could not be turned into functions (there was no type that could describe them).
+
+---
+
+```scala
+trait Entry { type Key; val key: Key }
+
+def extractKey(e: Entry): e.Key = e.key          // a dependent method
+val extractor: (e: Entry) => e.Key = extractKey  // a dependent function value
+//             ║  ⇓ ⇓ ⇓ ⇓ ⇓ ⇓ ⇓  ║
+//             ║    Dependent     ║
+//             ║  Function Type   ║
+//             ╚════════════════╝
+
+val intEntry = new Entry { type Key = Int; val key = 42 }
+val stringEntry = new Entry { type Key = String; val key = "foo" }
+
+val intKey1 = extractKey(intEntry) // 42
+val intKey2 = extractor(intEntry) // 42
+val stringKey1 = extractKey(stringEntry) // "foo"
+val stringKey2 = extractor(stringEntry) // "foo"
+
+assert(intKey1 == intKey2)
+assert(stringKey1 == stringKey2)
+
+```
+
+---
+
+<a name="ref_match_types"/>
+
+# Match Types
+
+---
+
+<a name="ref_tuples_are_hlists"/>
+
+# Tuples are HLists
+
+---
+
+### Tuples are HLists
+
+- Tuples and HList express the same semantic concept.
+- Scala 3 provides Tuple syntax and HList syntax to express this concept.
+- Both are completely equivalent.
+- In Scala 2 the number of Tuple members is limited to 22, in Scala 3 it is unlimited.
+
+```scala
+// Scala 2 + 3: Tuple syntax
+val isb1: (Int, String, Boolean) = (42, "foo", true)
+// Scala 3: HList syntax
+val isb2: Int *: String *: Boolean *: Unit = 42 *: "foo" *: true *: ()
+// HList in Scala 2 with 'shapeless'
+// val isb3: Int :: String :: Boolean :: HNil = 42 :: "foo" :: true :: HNil
+
+summon[(Int, String, Boolean) =:= Int *: String *: Boolean *: Unit] // identical types
+
+assert(isb1 == isb2) // identical values
+```
+
+---
+
+## Match Types
+
+- Match types are a _match_ expressions on the type level.
+- The syntax is analogous to _match_ expressions on the value level.
+- A match type reduces to one of a number of right hand sides, depending on a scrutinee type.
+
+```scala
+type Elem[X] = X match
+  case String => Char
+  case Array[t] => t
+  case Iterable[t] => t
+
+// proofs
+summon[Elem[String]       =:=  Char]
+summon[Elem[Array[Int]]   =:=  Int]
+summon[Elem[List[Float]]  =:=  Float]
+summon[Elem[Nil.type]     =:=  Nothing]
+```
+
+---
+
+## Recursive Match Types
+
+- Match types can be recursive.
+
+```scala
+type LeafElem[X] = X match
+  case String => Char
+  case Array[t] => LeafElem[t]
+  case Iterable[t] => LeafElem[t]
+  case AnyVal => X
+```
+
+- Recursive match types may have an upper bound.
+
+```scala
+type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
+  case Unit => Ys
+  case x *: xs => x *: Concat[xs, Ys]
+```
+
+---
+
+<a name="ref_export_clauses"/>
+
+# Export Clauses
+
+---
+
+### Export Clauses aka Export Aliases
+
+- An export clause syntactically has the same format as an import clause.
+- An export clause defines aliases for selected members of an object.
+- Exported members are accessible from inside the object as well as from outside ...
+- ... even when the aliased object is private.
+- Export aliases encourage the best practice: Prefer composition over inheritance.
+- They also fill the gap left by deprecated/removed package objects which inherited from some class or trait.
+- A _given_ instance can also be exported, if the exported member is also tagged with _given_.
+
+---
+
+### Export Clauses
+
+```scala
+class A
+  def a1 = 42
+  def a2 = a1.toString
+
+class B
+  private val a = new A
+  export a.{a2 => aString} // exports a.a2 aliased to aString
+
+val b = new B
+
+// a.a1 and a.a2 are not directly accessible as a is private in B.
+// The export clause makes a.a2 (aliased to aString) accessible as a member of b.
+val bString = b.aString ensuring (_ == 42.toString)
+```
+
+---
+
+<a name="ref_explicit_nulls"/>
+
+# Explicit Nulls
+
+---
+
+<a name="ref_typeclass_derivation"/>
+
+# Typeclass derivation
+
+---
+
+<a name="ref_inline"/>
+
+# _inline_
 
 ---
 
