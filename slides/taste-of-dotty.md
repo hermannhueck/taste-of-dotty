@@ -521,7 +521,7 @@ val greenHello = Green.colored("Hello World!")
 <br/>
 
 ```scala
-sealed trait Tree[T]
+sealed trait Tree[+T]
 object Tree {
   case class Leaf[T](elem: T) extends Tree[T]
   case class Node[T](left: Tree[T], right: Tree[T]) extends Tree[T]
@@ -541,7 +541,7 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 <br/>
 
 ```scala
-enum Tree[T]
+enum Tree[+T]
   case Leaf(elem: T) extends Tree[T]
   case Node(left: Tree[T], right: Tree[T]) extends Tree[T]
 
@@ -559,7 +559,7 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 <br/>
 
 ```scala
-enum Tree[T]
+enum Tree[+T]
   case Leaf(elem: T)
   case Node(left: Tree[T], right: Tree[T])
 
@@ -577,7 +577,7 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 <br/>
 
 ```scala
-enum Tree[T]
+enum Tree[+T]
   case Leaf(elem: T)
   case Node(left: Tree[T], right: Tree[T])
   def count: Int = this match
@@ -1357,6 +1357,7 @@ assert(stringKey1 == stringKey2)
 - Scala 3 provides Tuple syntax and HList syntax to express this concept.
 - Both are completely equivalent.
 - In Scala 2 the number of Tuple members is limited to 22, in Scala 3 it is unlimited.
+- This is beneficial for _shapeless3_ (must no longer convert between tuples and HLists).
 
 ```scala
 // Scala 2 + 3: Tuple syntax
@@ -1537,15 +1538,117 @@ val str: String = strOrNull.nn
 
 ---
 
+<a name="ref_inline"/>
+
+# _inline_
+
+---
+
+### _inline_
+
+- Scala 3 introduces a new modifier _inline_.
+- ... to be used with methods, _val_'s, parameters, conditionals and match expressions.
+- _val_'s and parameters, expressions must be fixed at compile time to be inlinable.
+- The compiler guartantees inlining or fails to compile.
+- In Scala 2 the _@inline_ annotation was a hint to the compiler to inline if possible.
+- Use annotation _@forceInline_ when cross-compiling for Scala 2 and Scala 3.
+- _@forceInline_ is equivalent to the modifier _inline_ in Scala 3 and ignored in Scala 2.
+- For cross-compilation use both annotations: _@forceInline_ as well as _@inline_.
+
+---
+
+### _inline_ Example
+
+```scala
+object Config {
+  inline val logging = false // RHS must be a constant expression (i.e. known at compile time)
+}
+
+object Logger {
+  inline def log[T](msg: String)(op: => T): T =
+    if Config.logging then // Config.logging is a constant condition known at compile time.
+      println(s"START: $msg")
+      val result = op
+      println(s"END: $msg; result = $result")
+      result
+    else
+      op
+}
+```
+
+- The Logger object contains a definition of the _inline_ method _log_, which will always be inlined at the point of call.
+- In the inlined code, an if-then-else with a constant condition will be rewritten to its then- or else-part.
+
+---
+
+### Recursive Inline Methods
+
+```scala
+
+inline def power(x: Double, inline n: Int): Double = { // for inlining n must be a constant.
+  if n == 0 then 1.0                                   // param n can be inlined too.
+  else if n == 1 then x
+  else
+    val y = power(x, n / 2)
+    if n % 2 == 0 then y * y else y * y * x
+}
+
+power(expr, 10)
+  // translates to:
+  //    val x = expr
+  //    val y1 = x * x   // ^2
+  //    val y2 = y1 * y1 // ^4
+  //    val y3 = y2 * x  // ^5
+  //    y3 * y3          // ^10
+```
+
+---
+
+### _inline_ Conditionals
+
+- If the condition of an if-then-else expressions is a constant expression then it simplifies to the selected branch.
+- Prefixing an if-then-else expression with inline enforces that the condition has to be a constant expression.
+- This guarantees that the conditional will always simplify.
+
+```scala
+inline def update(delta: Int) =
+  inline if delta >= 0 then increaseBy(delta)
+  else decreaseBy(-delta)
+```
+
+A call _update(22)_ would rewrite to _increaseBy(22)_ as 22 is a compile-time constant.
+If _update_ was not called with a constant, this code snippet doesn't compile.
+
+---
+
+### Inline Matches
+
+- A match expression in the body of an inline method definition may be prefixed by the inline modifier.
+- If there is enough static information to unambiguously take a branch, the expression is reduced to that branch.
+- Otherwise a compile-time error is raised that reports that the match cannot be reduced.
+
+```scala
+inline def g(x: Any) <: Any = inline x match {
+  case x: String => (x, x) // return type: Tuple2[String, String](x, x)
+  case x: Double => x      // return type: Double
+}
+
+val res1: Double = g(1.0d) // Has type 1.0d which is a subtype of Double
+val res2: (String, String) = g("test") // Has type (String, String)
+```
+
+---
+
 <a name="ref_typeclass_derivation"/>
 
 # Typeclass derivation
 
 ---
 
-<a name="ref_inline"/>
+### Typeclass derivation
 
-# _inline_
+- blah
+- blup
 
 ---
 
