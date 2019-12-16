@@ -1,6 +1,6 @@
 package dotty.samples.enums
 
-sealed trait Tree1[T]
+sealed trait Tree1[+T]
 object Tree1 {
   case class Leaf1[T](elem: T) extends Tree1[T]
   case class Node1[T](left: Tree1[T], right: Tree1[T]) extends Tree1[T]
