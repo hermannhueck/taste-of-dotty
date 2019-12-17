@@ -1490,7 +1490,7 @@ val s2: String | Null = null
 ```scala
 class C {
   val f: String = foo(f)
-  def foo(f2: String): String = if (f2 == null) "field is null" else f2
+  def foo(f2: String|Null): String = if (f2 == null) "field is null" else f2
 }
 val c = new C()
 // c.f == "field is null"
@@ -1504,8 +1504,8 @@ val c = new C()
 - _null_ can only be compared with _Null_, nullable union _(T | Null)_, or _Any_ type.
 
 ```scala
-val x: String = ???
-val y: String | Null = ???
+val x: String = "foo"
+val y: String | Null = "foo"
 
 x == null       // error: Values of types String and Null cannot be compared with == or !=
 x eq null       // error
