@@ -1742,6 +1742,65 @@ s.write(None)
 
 ---
 
+<a name="ref_implicit_resolution"/>
+
+# Implicit Resolution
+
+---
+
+### Implicit Resolution
+
+- A new algorithm which caches implicit results more aggressively for performance.
+- Types of implicit values and result types of implicit methods must be explicitly declared.
+- Nesting is now taken into account when selecting an implicit.
+- Package prefixes no longer contribute to the implicit scope of a type (which was the case in Scala 2).
+- More details and rule in the [Dotty documentation](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
+
+---
+
+<a name="ref_overload_resolution"/>
+
+# Overload Resolution
+
+---
+
+### Looking Beyond the First Argument List
+
+- Overloading resolution now can take argument lists into account when choosing among a set of overloaded alternatives.
+
+```scala
+def f(x: Int)(y: String): Int = 0
+def f(x: Int)(y: Int): Int = 0
+
+f(3)("")     // ok, but ambiguous overload error in Scala 2
+
+def g(x: Int)(y: Int)(z: Int): Int = 0
+def g(x: Int)(y: Int)(z: String): Int = 0
+
+g(2)(3)(4)     // ok, but ambiguous overload error in Scala 2
+g(2)(3)("")    // ok, but ambiguous overload error in Scala 2
+```
+
+---
+
+### Parameter Types of Function Values
+
+- Improved handling of function values with missing parameter types
+
+<br/>
+<br/>
+
+```scala
+def h(x: Int, h: Int => Int) = h(x)
+def h(x: String, h: String => String) = h(x)
+h(40, _ + 2)             // ok, but missing parameter type error in Scala 2
+h("a", _.toUpperCase)    // ok, but missing parameter type error in Scala 2
+```
+
+<br/>
+
+---
+
 <a name="ref_resources"/>
 
 # Resources
