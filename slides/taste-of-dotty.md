@@ -1712,6 +1712,36 @@ assert(tree1 !== tree3)
 
 ---
 
+<a name="ref_given_byname_parameters"/>
+
+# Given By-Name Parameters
+
+---
+
+### Given By-Name Parameters
+
+- Implicit parameters can be declared by-name to avoid a divergent inferred expansion.
+- Like a normal by-name parameter the argument for a _given_ parameter is evaluated lazily on demand.
+- This feature is available since Scala 2.13 (but with _implicit_ by-name parameters).
+
+```scala
+trait Codec[T]
+  def write(x: T): Unit
+
+given intCodec: Codec[Int] = ???
+
+given optionCodec[T](given ev: => Codec[T]): Codec[Option[T]] // given param ev is evaluated lazily
+  def write(xo: Option[T]) = xo match
+    case Some(x) => ev.write(x)
+    case None =>
+
+val s = summon[Codec[Option[Int]]]
+s.write(Some(33))
+s.write(None)
+```
+
+---
+
 <a name="ref_resources"/>
 
 # Resources
