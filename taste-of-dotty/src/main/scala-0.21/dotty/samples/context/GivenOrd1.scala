@@ -21,12 +21,15 @@ object Ord1 {
       case (_, Nil) => +1
       case (x :: xs1, y :: ys1) =>
         val fst = ord.compare(x, y)
-        if (fst != 0) fst else compare(xs1, ys1)
+        if fst != 0 then
+          fst
+        else
+          compare(xs1, ys1)
     }
   }
 
   def max[T](x: T, y: T)(given ord: Ord[T]): T =
-    if (ord.compare(x, y) < 0) y else x
+    if ord.compare(x, y) < 0 then y else x
 
   def maximum[T](xs: List[T])(given Ord[T]): T =
     xs.reduceLeft(max)

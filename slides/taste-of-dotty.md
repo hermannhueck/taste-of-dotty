@@ -1641,14 +1641,74 @@ val res2: (String, String) = g("test") // Has type (String, String)
 
 <a name="ref_typeclass_derivation"/>
 
-# Typeclass derivation
+# Typeclass Derivation
 
 ---
 
-### Typeclass derivation
+### Typeclass Derivation
 
-- blah
-- blup
+- In Scala 2 type class derivation wasn't baked into the language.
+- Type class derivation was provided by 3rd party libraries: shapeless, Magnolia, scalaz-derived.
+- These libraries were based on Scala 2 macros.
+
+<br/>
+
+- Scala 3 comes with low level mechanics for typeclass derivation,
+- which are provided primarily for library authors (not for users).
+
+---
+
+### Typeclass Derivation (how it works)
+
+- Type class derivation supports product types (case classes) and sum types (enums, ADTs).
+- The typeclass author provides the typeclass trait and a method _derived_ in the typeclass companion object.
+- _derived_ - not necessarily but typically - has a parameter of type _Mirror_.
+- _Mirror_ provides the meta information of the typeclass, useful to implement _derived_.
+- The typeclass user can easily create in instance of the type class by adding a _derives_ clause to a type.
+- Code structure in the subsequent slides
+- For details see the [Dotty documentation](https://dotty.epfl.ch/docs/reference/contextual/derivation.html)
+
+---
+
+### Typeclass Derivation (code structure 1/2)
+
+```scala
+import scala.deriving._
+
+trait Eq[T]    // type class 'Eq'
+  def eqv(x: T, y: T): Boolean
+  def (x: T) === (y: T): Boolean = eqv(x, y)
+  def (x: T) !== (y: T): Boolean = !eqv(x, y)
+
+
+object Eq    // type class 'Eq' companion
+  inline given derived[T](given m: Mirror.Of[T]): Eq[T] =
+    // use Mirror for the implementation
+    ???
+
+enum Tree[+T] derives Eq    // type Tree with derived instance of Eq
+  case Leaf(elem: T)
+  case Node(left: Tree[T], right: Tree[T])
+```
+
+---
+
+### Typeclass Derivation (code structure 2/2)
+
+```scala
+import Tree._
+
+// summon Eq for Tree[Int] instance into local scope
+given Eq[Tree[Int]] = summon[Eq[Tree[Int]]]
+
+// check equality of two trees using the given instance of Eq[Tree[Int]]
+val tree1 = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
+val tree2 = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
+val tree3 = Node(Leaf(2), Leaf(3))
+
+assert(tree1 === tree2)
+assert(tree1 !== tree3)
+```
 
 ---
 

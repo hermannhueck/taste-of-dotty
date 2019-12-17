@@ -14,10 +14,11 @@ object ExplicitNulls {
   class C {
    val f: String = foo(f)
    def foo(f2: String|Null): String =
-    val res = if f2 == null then
-      "field is null"
-    else
-      f2
+    val res =
+      if f2 == null then
+        "field is null"
+      else
+        f2
     println(s"\n$res\n")
     res
   }
