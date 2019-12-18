@@ -2,6 +2,41 @@ slidenumbers: true
 autoscale: true
 <!-- footer: A Taste of Dotty -->
 
+## _migration: Scala2 => Scala3_ = ???
+### (a live coding session)
+# <br/>
+
+#### copyright 2019 Hermann Hueck
+#### <br/>
+#### https://github.com/hermannhueck/taste-of-dotty
+
+---
+
+# Abstract
+
+<br/>
+
+In this live coding presentation I am taking some Scala 2 code samples and migrate them to Scala 3 - explaining a bunch of new features along the way.
+
+---
+
+### Features to cover during the session
+
+- [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
+- [Indentation / Optional Braces](#ref_indentation_optional_braces)
+- [New Control Syntax](#ref_new_control_syntax)
+- [Main Methods](#ref_main_methods)
+- [Enums and ADTs](#ref_enums_and_adts)
+- [Opaque Type Aliases](#ref_opaque_type_aliases)
+- [Intersection Types](#ref_intersection_types)
+- [Union Types](#ref_union_types)
+- [Extension Methods](#ref_extension_methods)
+- [Givens](#ref_givens)
+- [Type Lambdas](#ref_type_lambdas)
+- [Typeclasses](#ref_typeclasses)
+
+---
+
 # A Taste of Dotty
 # <br/>
 
@@ -12,39 +47,61 @@ autoscale: true
 
 # Abstract
 
-This presentation is an introduction to Dotty / Scala 3.
+This presentation is an introduction to Dotty / Scala 3 and an overview of many features.
 
-It covers the features which I deem most important for Scala developers.
+It covers those features which I deem most important for Scala developers.
 
 For detailed information see the [Dotty documentation](https://dotty.epfl.ch/docs/index.html).
 
----
+The code examples are partly my own. I took many examples (unchanged or modified) from the Dotty Documentation.
 
-# Agenda (1/2)
-
-_-_ [Design Goals](#ref_design_goals)
-_-_ [Project Setup](#ref_project_setup)
-_-_ [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
-_-_ [Indentation / Optional Braces](#ref_indentation_optional_braces)
-_-_ [New Control Syntax](#ref_new_control_syntax)
-_-_ [Main Methods](#ref_main_methods)
-_-_ [Constructors without _new_](#ref_constructors_without_new)
-_-_ [Traits with Parameters](#ref_traits_with_parameters)
-_-_ [Enums and ADTs](#ref_enums_and_adts)
-_-_ [Intersection Types](#ref_intersection_types)
-_-_ [Union Types](#ref_union_types)
+The presentation also contains many links to specific chapters in the Dotty docs.
 
 ---
 
-# Agenda (2/2)
+# Agenda (1/3)
 
-_-_ [Contextual Abstractions](#ref_contextual_abstractions)
-_-_ [Implicit Conversions](#ref_implicit_conversions)
-_-_ [Extension Methods](#ref_extension_methods)
-_-_ [Givens](#ref_givens)
-_-_ [Type Lambdas](#ref_type_lambdas)
-_-_ [Typeclasses](#ref_typeclasses)
-_-_ [Resources](#ref_resources)
+- [Design Goals](#ref_design_goals)
+- [Project Setup](#ref_project_setup)
+- [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
+- [Indentation / Optional Braces](#ref_indentation_optional_braces)
+- [New Control Syntax](#ref_new_control_syntax)
+- [Main Methods](#ref_main_methods)
+- [Constructors without _new_](#ref_constructors_without_new)
+- [Traits with Parameters](#ref_traits_with_parameters)
+- [Enums and ADTs](#ref_enums_and_adts)
+- [Intersection Types](#ref_intersection_types)
+
+---
+
+# Agenda (2/3)
+
+- [Union Types](#ref_union_types)
+- [Contextual Abstractions](#ref_contextual_abstractions)
+- [Implicit Conversions](#ref_implicit_conversions)
+- [Extension Methods](#ref_extension_methods)
+- [Givens](#ref_givens)
+- [Type Lambdas](#ref_type_lambdas)
+- [Typeclasses](#ref_typeclasses)
+- [Opaque Type Aliases](#ref_opaque_type_aliases)
+- [Implicit Function Types](#ref_implicit_function_types)
+- [Dependent Function Types](#ref_dependent_function_types)
+
+---
+
+# Agenda (3/3)
+
+- [Tuples are HLists](#ref_tuples_are_hlists)
+- [Match Types](#ref_match_types)
+- [Export Clauses](#ref_export_clauses)
+- [Explicit Nulls](#ref_explicit_nulls)
+- [_inline_](#ref_inline)
+- [Typeclass Derivation](#ref_typeclass_derivation)
+- [Given By-Name Parameters](#ref_given_byname_parameters)
+- [Implicit Resolution](#ref_implicit_resolution)
+- [Overload Resolution](#ref_overload_resolution)
+- [Other Features](#ref_other_features)
+- [Resources](#ref_resources)
 
 ---
 
@@ -56,7 +113,7 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## Design Goals
+### Design Goals
 <br/>
 
 - build on strong foundations (DOT Calculus)
@@ -67,7 +124,9 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## Changes are Fundamental
+### Changes are Fundamental
+
+#### TODO: quote
 
 <br/>
 
@@ -89,7 +148,7 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## IDE Support[^3]
+### IDE Support[^3]
 <br/>
 
 - Dotty comes with a built-in Dotty Language Server.
@@ -101,7 +160,7 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## Prerequisites
+### Prerequisites
 <br/>
 
 - _sbt_ is installed.
@@ -113,7 +172,7 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## New _sbt_ Project
+### New _sbt_ Project
 <br/>
 
 - create new project: _sbt new lampepfl/dotty.g8_
@@ -125,7 +184,7 @@ _-_ [Resources](#ref_resources)
 
 ---
 
-## build.sbt
+### build.sbt
 
 ```scala
 // val dottyVersion = "0.20.0-RC1"
@@ -145,7 +204,7 @@ lazy val root = project
 ---
 
 <br/>
-## project/plugin.sbt
+### project/plugin.sbt
 
 <br/>
 
@@ -157,12 +216,13 @@ addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
 ---
 
 <br/>
-## project/build.properties
+### project/build.properties
 
 <br/>
 
 ```scala
 // change to latest sbt version
+// 1.3.5 in December 2019
 sbt.version=1.2.7
 ```
 
@@ -176,11 +236,11 @@ sbt.version=1.2.7
 
 ---
 
-## Top Level _def_'s and _val_'s
+### Top Level _def_'s and _val_'s
 
 - Scala 2: _def_'s and _val_'s must be defined in a _trait_, _class_ or _object_.
 - Scala 3: _def_'s and _val_'s can be defined at the top level.
-- Scala 2: To provide _def_'s and _val_'s directly in a package, one could use package objects.
+- Scala 2: To provide _def_'s and _val_'s directly in a package, one has to use package objects.
 - Scala 3: Package objects are still available in 3.0, but will be deprecated and removed in 3.1 or 3.2.
 
 ---
@@ -215,7 +275,7 @@ def printBoxed(what: String): Unit =
 
 ---
 
-## Indentation / Optional Braces
+### Indentation / Optional Braces
 <br/>
 
 - Braces are optional.
@@ -250,7 +310,7 @@ def boxed(what: Any): String =
 
 ---
 
-#### if ... then ... else
+### if ... then ... else
 
 ```scala
   val x = 42
@@ -267,7 +327,7 @@ def boxed(what: Any): String =
 
 ---
 
-#### while ... do (while-loop)
+### while ... do (while-loop)
 
 ```scala
   var x = 42
@@ -283,7 +343,7 @@ def boxed(what: Any): String =
 
 ---
 
-#### for ... do (for-loop)
+### for ... do (for-loop)
 
 ```scala
   val xs = List(1, 2, 3)
@@ -301,7 +361,7 @@ def boxed(what: Any): String =
 
 ---
 
-#### for ... yield (for-comprehension)
+### for ... yield (for-comprehension)
 
 ```scala
   val xs = List(1, 2, 3)
@@ -327,14 +387,14 @@ def boxed(what: Any): String =
 
 ---
 
-## Main Methods
+### Main Methods
 <br/>
 
 ```scala
 @main def happyBirthday(age: Int, name: String, others: String*): Unit =
 
   val congrats = s"Happy Birthday at age $age to $name" ++ {
-    if others.isEmpty then
+    if others.isEmpty
       ""
     else
       " and " ++ others.mkString(", ")
@@ -345,7 +405,7 @@ def boxed(what: Any): String =
 
 ---
 
-## Main Methods
+### Main Methods
 
 - A _@main_ annotation on a method turns this method into an executable program.
 - The method must be static, i.e. not defined within a class or trait.
@@ -364,12 +424,12 @@ def boxed(what: Any): String =
 
 ---
 
-## Constructors without _new_
+### Constructors without _new_
 
 - When constructing instances the _new_ keyword is optional.
 - Works not only for case classes but also for regular classes.
 - Works for Java classes too.
-- If no _apply_ is found, the compiler looks for a suitable constructor.
+- If no _apply_ method is found, the compiler looks for a suitable constructor.
 
 <br/>
 
@@ -391,11 +451,11 @@ val sb =
 
 ---
 
-## Traits with Parameters
+### Traits with Parameters
 
 - Traits can have parameters like classes.
 - Arguments are evaluated before the trait is initialized.
-- They replace early iniitalizers in Scala 2 traits, which have been dropped.
+- They replace early initalizers in Scala 2 traits, which have been dropped.
 
 <br/>
 
@@ -423,7 +483,7 @@ class D extends C with Greeting("Bill") // COMPILE ERROR
 
 ---
 
-## Simple Enums
+### Simple Enums
 
 <br/>
 
@@ -439,7 +499,7 @@ enum Color
   
 ---
 
-## Java compatible Enums
+### Java compatible Enums
 
 <br/>
 
@@ -454,7 +514,7 @@ enum Color extends java.lang.Enum[Color]
   
 ---
 
-## Enums with Parameters
+### Enums with Parameters
 
 <br/>
 
@@ -471,7 +531,7 @@ enum Color(val escape: String)
   
 ---
 
-## Methods defined for Enums
+### Methods defined for Enums
 
 ```scala
 scala> val red = Color.Red
@@ -480,7 +540,7 @@ scala> red.ordinal
 val res0: Int = 0
 ```
 
-## Methods defined on the companion object
+### Methods defined on the companion object
 
 ```scala
 scala> Color.valueOf("Blue")
@@ -491,7 +551,7 @@ val res1: Array[Color] = Array(Red, Green, Blue)
   
 ---
 
-## User-defined members of Enums
+### User-defined members of Enums
 
 - It is possible to add your own definitions to an enum.
 - You can also define your own methods in the _enum_'s companion object.
@@ -513,7 +573,7 @@ val greenHello = Green.colored("Hello World!")
 
 ---
 
-## ADTs in Scala 2
+### ADTs in Scala 2
 
 - In Scala 2 ADTS are expressed as sealed traits with a hierarchy of case classes.
 - This syntax is still supported in Scala 3.
@@ -534,7 +594,7 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 
 ---
 
-## ADTs in Scala 3
+### ADTs in Scala 3
 
 - In Scala 3 an ADT can be expressed with _enum_ syntax.
 
@@ -552,9 +612,9 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 
 ---
 
-## ADTs with Syntactic Sugar
+### ADTs with Syntactic Sugar
 
-- The _extends_ clause can be omitted.
+- The _extends_ clause can be omitted in many cases.
 
 <br/>
 
@@ -570,7 +630,7 @@ val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 
 ---
 
-## ADTs with Methods
+### ADTs with Methods
 
 - As all other enums, ADTs can define methods.
 
@@ -600,14 +660,14 @@ val count = tree.count // 3
 
 ---
 
-## Intersection Types
+### Intersection Types
 
 - Used on types, the _&_ operator creates an intersection type.
-- The type _S & T_ represents values that are of the type _S_ and _T_ at the same time.
-- _S & T_ has all members of _S_ and all members of _T_.
-- _&_ is commutative: _S & T_ is the same type as _T & S_.
-
-<br/>
+- The type _A & B_ represents values that are of the type _A_ and _B_ at the same time.
+- _A & B_ has all members/properties of _A_ and all members/properties of _B_.
+- _&_ is commutative: _A & B_ is the same type as _B & A_.
+- Intersection types will - in the long run - replace compound types: _A with B_
+- _with_ ist not commutative.
 
 ```scala
 trait Resettable
@@ -621,6 +681,8 @@ type ResetGrowable[T] =
 ```
 
 ---
+
+#### ... continued
 
 ```scala
 class MyClass(var x : Int = 0) extends Resettable with Growable[Int]
@@ -652,15 +714,15 @@ def f(x: ResetGrowable[Int]) =
 
 ---
 
-## Union Types
+### Union Types
 
 <br/>
 
 - A union type _A | B_ comprises all values of type _A_ and also all values of type _B_.
 - Union types are duals of intersection types.
+- _A | B_ contains all members/properties which _A_ and _B_ have in common.
 - _|_ is commutative: _A | B_ is the same type as _B | A_.
-- Union types will - in the long run - replace compound types: _A with B_
-- _with_ ist not commutative.
+- Pattern matching is the natural way to decide if an _A | B_ is an _A_ or a _B_.
 
 <br/>
 <br/>
@@ -692,11 +754,15 @@ val either: Password | UserName =
 
 # Contextual Abstractions[^15]
 
+## <br/>
+
+## (Implicits in Scala 2)
+
 [^15]: [https://dotty.epfl.ch/docs/reference/contextual/motivation.html](https://dotty.epfl.ch/docs/reference/contextual/motivation.html)
 
 ---
 
-## Implicits
+### Implicits
 
 - Implicits are the fundamental way to abstract over context in Scala 2.
 - Hard to understand, error-prone, easily mis-used or overused, many rough edges.
@@ -710,7 +776,7 @@ val either: Password | UserName =
 
 ---
 
-## The new Design in Scala 3
+### The new Design in Scala 3 (1/2)
 
 - Focus on intent over mechanism
 - Implicit conversions are hard to mis-use.
@@ -718,12 +784,18 @@ val either: Password | UserName =
 - New keyword _given_
 - _given_ instances focus on types instead of terms.
 - _given_ clauses replace _implicit_ parameters.
-- _given_ imports are distict from regular imports.
+- _given_ imports are distinct from regular imports.
+
+---
+
+### The new Design in Scala 3 (2/2)
+
 - Typeclasses can be expressed in a more concise way (also due to the new extension methods).
 - Context bounds remain unchanged in syntax and semantics.
 - Typeclass derivation is supported.
 - Implicit Function Types provide a way to abstract over given clauses.
 - Implicit By-Name Parameters are an essential tool to define recursive synthesized values without looping.
+- Multiversal Equality introduces a special typeclass to support type safe equality.
 - Scala 2 implicits remain available in parallel for a long time.
 
 ---
@@ -736,7 +808,7 @@ val either: Password | UserName =
 
 ---
 
-## Implicit Conversions
+### Implicit Conversions
 
 - _scala.Conversion_ is a subclass of _Function1_.
 
@@ -745,7 +817,7 @@ package scala
 abstract class Conversion[-T, +U] extends (T => U)
 ```
 
-- Implicit Conversions must derive _Conversion_.
+- Implicit Conversions must extend _Conversion_.
 
 ```scala
 case class Token(str: String)
@@ -762,7 +834,7 @@ given Conversion[String, Token] = Token(_)
 
 ---
 
-## Implicit Conversion in Scala 2:
+### Implicit Conversion in Scala 2:
 
 <br/>
 <br/>
@@ -789,17 +861,20 @@ Syntax can easily be mixed up with other implicit constructs.
 
 ---
 
-## Extension Methods
+### Extension Methods
 
 - Extension methods are methods that have a parameter clause in front of the defined identifier.
-- They translate to methods where the leading parameter section is moved to after the defined identifier.
-- They can be invoked both ways:
+- They translate to methods where the leading parameter section is moved to the front of the method name.
+- Type parameters are moved to the front of the first parameter section.
+- They can be invoked two ways:
   _method(param)_  or _param.method_
 - They replace implicit classes of Scala 2.
 
 ---
 
-## Extension Methods
+### Extension Methods
+
+<br/>
 
 ```scala
 case class Circle(x: Double, y: Double, radius: Double)
@@ -813,15 +888,19 @@ val cf2 = circumference(circle)
 assert(cf1 == cf2)
 ```
 
+<br/>
+
 ---
 
 <a name="ref_givens"/>
 
-# Givens
+# Givens[^18]
+
+[^18]: [https://dotty.epfl.ch/docs/reference/contextual/motivation.html](https://dotty.epfl.ch/docs/reference/contextual/motivation.html)
 
 ---
 
-## Givens
+### Givens
 
 - _given_ is a new keyword.
 - _given_'s in many ways replace implicits.
@@ -830,7 +909,7 @@ assert(cf1 == cf2)
 
 ---
 
-## Givens: _Future_ Example 1
+### Givens: _Future_ Example 1
 
 - _Future_ requires a _given_ _ExecutionContext_ in nearly every method.
 <br/>
@@ -839,7 +918,7 @@ assert(cf1 == cf2)
 import scala.concurrent.{Future, ExecutionContext}
 
 // implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
-given ec: ExecutionContext = ExecutionContext.global
+given ec: ExecutionContext = ExecutionContext.global // variable ec can be omitted
 
 def someComputation(): Int = ???
 val future: Future[Int] = Future { someComputation() }
@@ -852,7 +931,7 @@ future onComplete {
 
 ---
 
-## Givens: _Future_ Example 2
+### Givens: _Future_ Example 2
 
 - This example provides the _ExecutionContext_ via _import_.
 <br/>
@@ -874,7 +953,7 @@ future onComplete {
 
 ---
 
-## Given Instances: _Ord_ Example
+### Given Instances: _Ord_ Example[^19]
 
 <br/>
 
@@ -891,19 +970,23 @@ trait Ord[T] {
 
 Typeclass instances to be defined as _given_'s ...
 
+[^19]: [https://dotty.epfl.ch/docs/reference/contextual/delegates.html](https://dotty.epfl.ch/docs/reference/contextual/delegates.html)
+
 ---
 
-## _given_ Instances
+### _given_ Instances
 
 <br/>
 
-- Replace _implicit val_'s, _def_'s and _object_'s.
+- They replace _implicit val_'s, _def_'s and _object_'s.
 - They can be defined with only a type omitting a name/symbol.
 - Symbols - if omitted - are synthesized by the compiler.
 
+<br/>
+
 ---
 
-## _given_ Instances for _Ord_
+### _given_ Instances for _Ord_
 
 ```scala
 // instances with symbols
@@ -928,19 +1011,19 @@ given [T](given Ord[T]): Ord[List[T]]
 
 ---
 
-## _given_ Clauses
+### _given_ Clauses[^20]
 
-<br/>
-
-- Replace the implicit parameter list.
+- They replace the implicit parameter list.
 - Multiple _given_ clauses are allowed.
 - Anonymous _given_'s: Symbols are optional.
 - _given_ instances can be summoned with the function _summon_.
 - _summon_ replaces Scala 2's _implicitly_.
 
+[^20]: [https://dotty.epfl.ch/docs/reference/contextual/given-clauses.html](https://dotty.epfl.ch/docs/reference/contextual/given-clauses.html)
+
 ---
 
-## _given_ Clauses using Symbols
+### _given_ Clauses using Symbols
 
 ```scala
 def max[T](x: T, y: T)(given ord: Ord[T]): T =
@@ -953,13 +1036,13 @@ def descending[T](given asc: Ord[T]): Ord[T] = new Ord[T] {
   def compare(x: T, y: T) = asc.compare(y, x)
 }
 
-def minimum[T](xs: List[T])(given Ord[T]) =
+def minimum[T](xs: List[T])(given ord: Ord[T]) =
   maximum(xs)(given descending)
 ```
 
 ---
 
-## Anonymous _given_ Clauses (without Symbols)
+### Anonymous _given_ Clauses (without Symbols)
 
 ```scala
 def max[T](x: T, y: T)(given Ord[T]): T =
@@ -978,7 +1061,7 @@ def minimum[T](xs: List[T])(given Ord[T]) =
 
 ---
 
-## Usages
+### Usages
 
 - When passing a _given_ explicitly, the keyword _given_ is required in front of the symbol.
 
@@ -997,7 +1080,7 @@ maximum(xs)(given descending) // maximum element of a List (in desc order)
 
 ---
 
-## Context Bounds
+### Context Bounds[^21]
 
 - These remain nearly unchanged.
 - A context bound is syntactic sugar for the last given clause of a method.
@@ -1016,9 +1099,11 @@ def maximum[T: Ord](xs: List[T]): T =
   xs.reduceLeft(max)
 ```
 
+[^21]: [https://dotty.epfl.ch/docs/reference/contextual/context-bounds.html](https://dotty.epfl.ch/docs/reference/contextual/context-bounds.html)
+
 ---
 
-## Given Imports
+### Given Imports[^22]
 
 ```scala
 object A
@@ -1028,7 +1113,7 @@ object A
 
 object B
   import A._ // imports all members of A except the given instances
-  import A.given // imports only that given instances of A
+  import A.given // imports only the given instances of A
 
 object C
   import A.{given, _} // import givens and non-givens with a single import
@@ -1037,25 +1122,33 @@ object D
   import A.{given A.TC} // importing by type
 ```
 
+[^22]: [https://dotty.epfl.ch/docs/reference/contextual/import-delegate.html](https://dotty.epfl.ch/docs/reference/contextual/import-delegate.html)
+
 ---
 
 <a name="ref_type_lambdas"/>
 
-# Type Lambdas
+# Type Lambdas[^23]
+
+[^23]: [https://dotty.epfl.ch/docs/reference/new-types/type-lambdas.html](https://dotty.epfl.ch/docs/reference/new-types/type-lambdas.html)
 
 ---
 
-## Type Lambdas
+### Type Lambdas
 
 - Type Lambdas are new feature in Scala 3.
 - Type Lambdas can be expressed in Scala 2 using a weird syntax with existiential types and type projections.
 - The _kind-projector_ compiler plugin brought a more convenient type lambda syntax to Scala 2.
-- Existential types and type projections are dropped from Scala 3.
+- Existential types and type projections are dropped from Scala 3.[^24] [^25]
 - Type lambdas remove the need for _kind-projector_.
+
+[^24]: [https://dotty.epfl.ch/docs/reference/dropped-features/existential-types.html](https://dotty.epfl.ch/docs/reference/dropped-features/existential-types.html)
+
+[^25]: [https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html](https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html)
 
 ---
 
-## Type Lambdas
+### Type Lambdas
 
 - A type lambda lets one express a higher-kinded type directly, without a type definition.
 - Type parameters of type lambdas can have variances and bounds.
@@ -1085,7 +1178,7 @@ implicit def eitherMonad[L]: Monad[({type lambda[x] = Either[L, x]})#lambda] = .
 // Scala 2 using kind-projector
 implicit def eitherMonad[L]: Monad[lambda[x => Either[L, x]]] = ...
 
-// Scala 2 using kind-projector with ? syntax
+// Scala 2 using kind-projector with ? syntax (use * in newer versions of kind-projector)
 implicit def eitherMonad[L]: Monad[Either[L, ?]] = ...
 
 // Scala 3 using a type lambda
@@ -1099,7 +1192,10 @@ given eitherMonad[L]: Monad[Either[L, *]] { ... }
 
 <a name="ref_typeclasses"/>
 
-# Typeclasses: Monad Example
+# Typeclasses[^26]
+## (Monad Example)
+
+[^26]: [https://dotty.epfl.ch/docs/reference/contextual/typeclasses.html](https://dotty.epfl.ch/docs/reference/contextual/typeclasses.html)
 
 ---
 
@@ -1107,18 +1203,19 @@ given eitherMonad[L]: Monad[Either[L, *]] { ... }
 
 - The previous type class _Ord_ defined an Ordering for some type _A_.
 - _Ord_ was polymorphic and parameterized with type _A_.
-- _Functor_ and _Monad_ are parameterized with the higher-kinded type _F[_]_. (Higher-kinded polymorphism)
+- _Functor_ and _Monad_ are parameterized with the higher-kinded type _F[?]_. (Higher-kinded polymorphism)
 
 ```scala
-trait Functor[F[_]] {
+trait Functor[F[?]] // use _ or ? for wildcard type
   def [A, B](x: F[A]) map (f: A => B): F[B]
-}
-trait Monad[F[_]] extends Functor[F] {
+
+trait Monad[F[?]] extends Functor[F] // use _ or ? for wildcard type
   def pure[A](a: A): F[A]
   def [A, B](fa: F[A]) flatMap (f: A => F[B]): F[B]
   override def [A, B] (fa: F[A]) map (f: A => B): F[B] =
     flatMap(fa)(f andThen pure)
-}
+  def [A](fa: F[F[A]]) flatten: F[A] =
+    flatMap(fa)(identity)
 ```
 
 ---
@@ -1150,7 +1247,7 @@ object Monad {
 ### Typeclasses: Using the Monad Instances
 
 ```scala
-def compute[F[_]: Monad](fInt1: F[Int], fInt2: F[Int]): F[(Int, Int)] =
+def compute[A, B, F[_]: Monad](fInt1: F[A], fInt2: F[B]): F[(A, B)] =
   for
     i1 <- fInt1
     i2 <- fInt2
@@ -1173,19 +1270,22 @@ val eResult = compute(e1, e2) // Right((1,10))
 
 <a name="ref_opaque_type_aliases"/>
 
-# Opaque Type Aliases
+# Opaque Type Aliases[^27]
+
+[^27]: [https://dotty.epfl.ch/docs/reference/other-new-features/opaques.html](https://dotty.epfl.ch/docs/reference/other-new-features/opaques.html)
 
 ---
 
-## Opaque Type Aliases
+### Opaque Type Aliases
 
 - Opaque types aliases provide type abstraction without any overhead.
 - No Boxing !!!
 - They are defined like normal type aliases, but prefixed with the new keyword _opaque_.
 - They must be defined within the scope of an object, trait or class.
-- The alias definition is visible only within the scope.
+- The alias definition is visible only within that scope.
 - Outside the scope only the defined alias is visible.
 - Opaque type aliases are compiled away and have no runtime overhead.
+- In Scala 2 one could extend _Anyval_ in order to avoid boxing (which didn't work well in some cases).
 
 ---
 
@@ -1239,16 +1339,18 @@ val cCircumferenceDouble: Double = cCircumference.l2Double
 
 <a name="ref_implicit_function_types"/>
 
-# Implicit Function Types
+# Implicit Function Types[^28]
+
+[^28]: [https://dotty.epfl.ch/docs/reference/contextual/implicit-function-types.html](https://dotty.epfl.ch/docs/reference/contextual/implicit-function-types.html)
 
 ---
 
-## Implicit Function Types
+### Implicit Function Types
 
 - Implicit functions are functions with (only) implicit parameters.
 - Their types are implicit function types with their parameters preceeded with the keyword _given_.
 
-## Implicit Function Literals
+### Implicit Function Literals
 
 - Like their types, implicit function literals are also prefixed with _given_.
 - They differ from normal function literals in two ways:
@@ -1279,7 +1381,7 @@ val res2 = f(2)             //=> 4 // ExecutionContext resolved implicitly
 
 ---
 
-### Example: Postconditions
+### Example: _PostConditions_
 
 ```scala
 object PostConditions {
@@ -1302,11 +1404,13 @@ val sum = List(1, 2, 3).sum.ensuring(result == 6)
 
 <a name="ref_dependent_function_types"/>
 
-# Dependent Function Types
+# Dependent Function Types[^29]
+
+[^29]: [https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html](https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html)
 
 ---
 
-## Dependent Function Types
+### Dependent Function Types
 
 - In a dependent method the result type refers to a parameter of the method. 
 - Scala 2 already provides dependent methods (but not dependent functions).
@@ -1339,12 +1443,6 @@ assert(stringKey1 == stringKey2)
 
 ---
 
-<a name="ref_match_types"/>
-
-# Match Types
-
----
-
 <a name="ref_tuples_are_hlists"/>
 
 # Tuples are HLists
@@ -1354,7 +1452,7 @@ assert(stringKey1 == stringKey2)
 ### Tuples are HLists
 
 - Tuples and HList express the same semantic concept.
-- Scala 3 provides Tuple syntax and HList syntax to express this concept.
+- Scala 3 provides Tuple syntax (like Scala 2) and HList syntax to express this concept.
 - Both are completely equivalent.
 - In Scala 2 the number of Tuple members is limited to 22, in Scala 3 it is unlimited.
 - This is beneficial for _shapeless3_ (must no longer convert between tuples and HLists).
@@ -1374,11 +1472,19 @@ assert(isb1 == isb2) // identical values
 
 ---
 
-## Match Types
+<a name="ref_match_types"/>
 
-- Match types are a _match_ expressions on the type level.
+# Match Types[^30]
+
+[^30]: [https://dotty.epfl.ch/docs/reference/new-types/match-types.html](https://dotty.epfl.ch/docs/reference/new-types/match-types.html)
+
+---
+
+### Match Types
+
+- Match types are _match_ expressions on the type level.
 - The syntax is analogous to _match_ expressions on the value level.
-- A match type reduces to one of a number of right hand sides, depending on a scrutinee type.
+- A match type reduces to one of a number of right hand sides, depending on the scrutinee type.
 
 ```scala
 type Elem[X] = X match
@@ -1395,7 +1501,7 @@ summon[Elem[Nil.type]     =:=  Nothing]
 
 ---
 
-## Recursive Match Types
+### Recursive Match Types
 
 - Match types can be recursive.
 
@@ -1406,6 +1512,8 @@ type LeafElem[X] = X match
   case Iterable[t] => LeafElem[t]
   case AnyVal => X
 ```
+
+<br/>
 
 - Recursive match types may have an upper bound.
 
@@ -1419,7 +1527,9 @@ type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
 
 <a name="ref_export_clauses"/>
 
-# Export Clauses
+# Export Clauses[^31]
+
+[^31]: [https://dotty.epfl.ch/docs/reference/other-new-features/export.html](https://dotty.epfl.ch/docs/reference/other-new-features/export.html)
 
 ---
 
@@ -1429,7 +1539,7 @@ type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
 - An export clause defines aliases for selected members of an object.
 - Exported members are accessible from inside the object as well as from outside ...
 - ... even when the aliased object is private.
-- Export aliases encourage the best practice: Prefer composition over inheritance.
+- Export aliases encourage a best practice: Prefer composition over inheritance.
 - They also fill the gap left by deprecated/removed package objects which inherited from some class or trait.
 - A _given_ instance can also be exported, if the exported member is also tagged with _given_.
 
@@ -1457,7 +1567,9 @@ val bString = b.aString ensuring (_ == 42.toString)
 
 <a name="ref_explicit_nulls"/>
 
-# Explicit Nulls
+# Explicit Nulls[^32]
+
+[^32]: [https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)
 
 ---
 
@@ -1465,8 +1577,9 @@ val bString = b.aString ensuring (_ == 42.toString)
 
 - Explicit nulls are an opt-in feature, enabled via the _-Yexplicit-nulls_ compiler flag.
 - This modifies the Scala type system, making reference types (anything that extends AnyRef) non-nullable.
-- Explicit nulls change the type hierarchy, so that Null is subtype only of Any, as opposed to every reference type.
+- Explicit nulls change the type hierarchy, so that Null is only a subtype of Any, as opposed to every reference type.
 - After erasure, Null remains a subtype of all reference types (as forced by the JVM).
+- _T | Null_ expresses nullability. It is the type of a nullable value.
 
 <br/>
 
@@ -1522,8 +1635,7 @@ y == x          // ok
 
 ### Working with Nulls
 
-- An extension method .nn to "cast away" nullability.
-- This is a proposal, not yet implemented as of 2019-12-15.
+- An extension method .nn is provided to "cast away" nullability.
 
 ```scala
 val strOrNull: String|Null = "foo"
@@ -1540,7 +1652,9 @@ val str: String = strOrNull.nn
 
 <a name="ref_inline"/>
 
-# _inline_
+# _inline_[^33]
+
+[^33]: [https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html](https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html)
 
 ---
 
@@ -1566,7 +1680,7 @@ object Config {
 
 object Logger {
   inline def log[T](msg: String)(op: => T): T =
-    if Config.logging then // Config.logging is a constant condition known at compile time.
+    if Config.logging // Config.logging is a constant condition known at compile time.
       println(s"START: $msg")
       val result = op
       println(s"END: $msg; result = $result")
@@ -1586,7 +1700,7 @@ object Logger {
 ```scala
 
 inline def power(x: Double, inline n: Int): Double = { // for inlining n must be a constant.
-  if n == 0 then 1.0                                   // param n can be inlined too.
+  if n == 0 then 1.0
   else if n == 1 then x
   else
     val y = power(x, n / 2)
@@ -1607,7 +1721,7 @@ power(expr, 10)
 ### _inline_ Conditionals
 
 - If the condition of an if-then-else expressions is a constant expression then it simplifies to the selected branch.
-- Prefixing an if-then-else expression with inline enforces that the condition has to be a constant expression.
+- When prefixing an if-then-else expression with inline the condition has to be a constant expression.
 - This guarantees that the conditional will always simplify.
 
 ```scala
@@ -1623,7 +1737,7 @@ If _update_ was not called with a constant, this code snippet doesn't compile.
 
 ### Inline Matches
 
-- A match expression in the body of an inline method definition may be prefixed by the inline modifier.
+- A match expression in the body of an inline method definition may also be prefixed by the inline modifier.
 - If there is enough static information to unambiguously take a branch, the expression is reduced to that branch.
 - Otherwise a compile-time error is raised that reports that the match cannot be reduced.
 
@@ -1641,7 +1755,9 @@ val res2: (String, String) = g("test") // Has type (String, String)
 
 <a name="ref_typeclass_derivation"/>
 
-# Typeclass Derivation
+# Typeclass Derivation[^34]
+
+[^34]: [https://dotty.epfl.ch/docs/reference/contextual/derivation.html](https://dotty.epfl.ch/docs/reference/contextual/derivation.html)
 
 ---
 
@@ -1710,11 +1826,15 @@ assert(tree1 === tree2)
 assert(tree1 !== tree3)
 ```
 
+<br/>
+
 ---
 
 <a name="ref_given_byname_parameters"/>
 
-# Given By-Name Parameters
+# Given By-Name Parameters[^35]
+
+[^35]: [https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html](https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html)
 
 ---
 
@@ -1744,29 +1864,35 @@ s.write(None)
 
 <a name="ref_implicit_resolution"/>
 
-# Implicit Resolution
+# Implicit Resolution[^36]
+
+[^36]: [https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
 
 ---
 
 ### Implicit Resolution
 
-- A new algorithm which caches implicit results more aggressively for performance.
+- New algorithm which caches implicit results more aggressively for performance.
 - Types of implicit values and result types of implicit methods must be explicitly declared.
 - Nesting is now taken into account when selecting an implicit.
 - Package prefixes no longer contribute to the implicit scope of a type (which was the case in Scala 2).
-- More details and rule in the [Dotty documentation](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
+- More details and rules in the [Dotty documentation](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
 
 ---
 
 <a name="ref_overload_resolution"/>
 
-# Overload Resolution
+# Overload Resolution[^37]
+
+[^37]: [https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html)
 
 ---
 
 ### Looking Beyond the First Argument List
 
-- Overloading resolution now can take argument lists into account when choosing among a set of overloaded alternatives.
+- Overloading resolution now do not only take the first argument list into account when choosing among a set of overloaded alternatives.
+
+<br/>
 
 ```scala
 def f(x: Int)(y: String): Int = 0
@@ -1777,8 +1903,8 @@ f(3)("")     // ok, but ambiguous overload error in Scala 2
 def g(x: Int)(y: Int)(z: Int): Int = 0
 def g(x: Int)(y: Int)(z: String): Int = 0
 
-g(2)(3)(4)     // ok, but ambiguous overload error in Scala 2
-g(2)(3)("")    // ok, but ambiguous overload error in Scala 2
+g(2)(3)(4)     // ok // but ambiguous overload error in Scala 2
+g(2)(3)("")    // ok // but ambiguous overload error in Scala 2
 ```
 
 ---
@@ -1793,11 +1919,29 @@ g(2)(3)("")    // ok, but ambiguous overload error in Scala 2
 ```scala
 def h(x: Int, h: Int => Int) = h(x)
 def h(x: String, h: String => String) = h(x)
-h(40, _ + 2)             // ok, but missing parameter type error in Scala 2
-h("a", _.toUpperCase)    // ok, but missing parameter type error in Scala 2
+h(40, _ + 2)             // ok // but missing parameter type error in Scala 2
+h("a", _.toUpperCase)    // ok // but missing parameter type error in Scala 2
 ```
 
 <br/>
+
+---
+
+<a name="ref_other_features"/>
+
+# Other Features
+
+---
+
+### Other Features
+
+- Open Classes: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/open-classes.html)
+- Parameter Untupling: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html)
+- Kind Polymorphism: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html)
+- Tupled Function: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/tupled-function.html)
+- Macros: Quotes and Splices: see [here](https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html)
+- Dropped Scala 2 Macros: see [here](https://dotty.epfl.ch/docs/reference/dropped-features/macros.html)
+- and more ...
 
 ---
 
@@ -1810,11 +1954,38 @@ h("a", _.toUpperCase)    // ok, but missing parameter type error in Scala 2
 ## Links
 
 - This presentation: code and slides
-  https://github.com/hermannhueck/taste-of-dotty
+  [https://github.com/hermannhueck/taste-of-dotty](https://github.com/hermannhueck/taste-of-dotty)
+- Dotty Documention
+  [https://dotty.epfl.ch/docs/](https://dotty.epfl.ch/docs/)
 
 ---
 
 ## Talks
 
-- Martin Odersky: Scala 3 is Coming (July 2019)
-  https://www.youtube.com/watch?v=U2tjcwSag_0
+- Martin Odersky (Lightbend Webinar): Scala 3 is Coming (published July 2019)
+  [https://www.youtube.com/watch?v=U2tjcwSag_0](https://www.youtube.com/watch?v=U2tjcwSag_0)
+- Martin Odersky at ScalaSphere Krakow: Revisiting Implicits (published October 2019)
+  [https://www.youtube.com/watch?v=h4dS5WRGJtE](https://www.youtube.com/watch?v=h4dS5WRGJtE)
+- Nicolas Stucki at ScalaDays Lausanne: Metaprogramming in Dotty (published July 2019)
+  [https://www.youtube.com/watch?v=ZfDS_gJyPTc](https://www.youtube.com/watch?v=ZfDS_gJyPTc)
+- Guillaume Martres at ScalaDays Lausanne: Future proofing Scala through TASTY (published July 2019)
+  [https://www.youtube.com/watch?v=zQFjC3zLYwo](https://www.youtube.com/watch?v=zQFjC3zLYwo)
+- Guillaume Martres at ScalaWorld GB: Scala 3, Type Inference and You! (published September 2019)
+  [https://www.youtube.com/watch?v=lMvOykNQ4zs](https://www.youtube.com/watch?v=lMvOykNQ4zs)
+- Lukas Rytz at ScalaDays Lausanne: How are we going to migrate to Scala 3.0, aka Dotty? (published July 2019)
+  [https://www.youtube.com/watch?v=KUl1Ilcf0b8](https://www.youtube.com/watch?v=KUl1Ilcf0b8)
+- Josh Suereth & James Ward at Devoxx Belgium: What's coming in Scala 3 (published November 2019)
+  [https://www.youtube.com/watch?v=Nv-BzYOMiWY](https://www.youtube.com/watch?v=Nv-BzYOMiWY)
+
+---
+
+# Thank You !
+
+# <br/>
+
+# Questions ?
+
+# <br/>
+
+#### [https://github.com/hermannhueck/taste-of-dotty](https://github.com/hermannhueck/taste-of-dotty)
+
