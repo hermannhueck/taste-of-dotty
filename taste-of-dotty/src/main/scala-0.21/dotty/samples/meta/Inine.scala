@@ -15,7 +15,7 @@ object Inline {
     private var indent = 0
   
     inline def log[T](msg: String, indentMargin: =>Int)(op: => T): T =
-      if Config.logging then
+      if Config.logging
         println(s"${"  " * indent}start $msg")
         indent += indentMargin
         val result = op
@@ -31,7 +31,8 @@ object Inline {
   // Inline methods can be recursive. For instance, when called with a constant exponent n,
   // the following method for power will be implemented by straight inline code without any loop or recursion.
 
-  inline def power(x: Double, n: Int): Double = {
+  // inline def power(x: Double, n: Int): Double = {
+  inline def power(x: Double, inline n: Int): Double = {
     if n == 0 then 1.0
     else if n == 1 then x
     else

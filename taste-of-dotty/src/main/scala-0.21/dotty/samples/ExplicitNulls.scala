@@ -47,7 +47,7 @@ object ExplicitNulls {
 
 
   // Working with Null:
-  // The extension method 'nn' casts nullability away.
+  // The extension method 'nn' casts away nullability.
   val strOrNull: String|Null = "foo"
-  // val str: String = strOrNull.nn
+  val str: String = strOrNull.nn
 }

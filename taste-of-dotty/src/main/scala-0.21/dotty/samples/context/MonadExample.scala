@@ -1,11 +1,11 @@
 package dotty.samples.context
 
-trait Functor[F[_]] {
+trait Functor[F[?]] // use _ or ? for wildcard type
   def [A, B](x: F[A]) map (f: A => B): F[B]
-}
 
-// trait Monad[F[_]] extends Functor[F] { // use _ or ? for wildcard type
-trait Monad[F[?]] extends Functor[F] {
+
+// trait Monad[F[_]] extends Functor[F] // use _ or ? for wildcard type
+trait Monad[F[?]] extends Functor[F]
 
   // intrinsic abstract methods for Monad
 
@@ -19,7 +19,7 @@ trait Monad[F[?]] extends Functor[F] {
 
   def [A](fa: F[F[A]]) flatten: F[A] =
     flatMap(fa)(identity)
-}
+
 
 object Monad {
 
@@ -39,7 +39,7 @@ object Monad {
       fa flatMap f
 
   /*
-  // placeholder * not yet supported in current nightly at 2019-12-14
+  // TODO: placeholder * not yet implemented in current nightly at 2019-12-17
   given [L]: Monad[Either[L, *]]
     def pure[A](a: A): Either[L, A] = Right(a)
     def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
@@ -48,7 +48,7 @@ object Monad {
 } 
  
 
-def compute[F[_]: Monad](fInt1: F[Int], fInt2: F[Int]): F[(Int, Int)] =
+def compute[A, B, F[_]: Monad](fInt1: F[A], fInt2: F[B]): F[(A, B)] =
   for
     i1 <- fInt1
     i2 <- fInt2

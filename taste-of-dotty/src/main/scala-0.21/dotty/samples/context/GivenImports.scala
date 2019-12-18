@@ -7,7 +7,7 @@ object A
 
 object B
   import A._ // imports all members of A except the given instances
-  import A.given // imports only that given instances of A
+  import A.given // imports only the given instances of A
 
 object C
   import A.{given, _} // import givens and non-givens with a single import

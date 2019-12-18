@@ -13,7 +13,7 @@ import util._
   lineStart() pipe println
 
   // implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
-  given ec: ExecutionContext = ExecutionContext.global
+  given ec: ExecutionContext = ExecutionContext.global // variable ec can be omitted
 
   def someComputation(): Int =
     println("computing Int value asynchronously ...")

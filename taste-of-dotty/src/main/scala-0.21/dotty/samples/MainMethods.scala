@@ -3,7 +3,7 @@ package dotty.samples
 @main def happyBirthday(age: Int, name: String, others: String*): Unit =
 
   val congrats = s"Happy Birthday at age $age to $name" ++ {
-    if others.isEmpty then
+    if others.isEmpty
       ""
     else
       " and " ++ others.mkString(", ")

@@ -38,7 +38,7 @@ object Ord1 {
     def compare(x: T, y: T) = asc.compare(y, x)
   }
 
-  def minimum[T](xs: List[T])(given Ord[T]) =
+  def minimum[T](xs: List[T])(given ord: Ord[T]) =
     maximum(xs)(given descending)
 }
 
