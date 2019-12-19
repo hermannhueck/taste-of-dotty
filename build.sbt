@@ -25,7 +25,7 @@ def scalacOptionsFor(scalacOptions: Seq[String], scalaVersion: String): Seq[Stri
   println(s"\n>>>>>          compiling for Scala $scalaVersion\n")
   if (scalaVersion.startsWith("0."))
     scalacOptions ++
-    Seq("-strict", "-Ykind-projector", "-Yexplicit-nulls")
+    Seq("-strict", "-Ykind-projector", "-Yexplicit-nulls", "-language:implicitConversions")
   else
     scalacOptions
 }
