@@ -2,7 +2,7 @@ slidenumbers: true
 autoscale: true
 <!-- footer: A Taste of Dotty -->
 
-## _migration: Scala2 => Scala3_ = ???
+## _migration: Scala2 => Scala3 = ???_
 ### (a live coding session)
 # <br/>
 
@@ -1927,6 +1927,36 @@ h("a", _.toUpperCase)    // ok // but missing parameter type error in Scala 2
 
 ---
 
+<a name="ref_parameter_untupling"/>
+
+# Parameter Untupling[^38]
+
+[^38]: [https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html](https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html)
+
+---
+
+### Parameter Untupling
+
+- In a mapping (or other) function you pattern match the tuples to dissect them into their parts.
+- Scala 3 can untuple the tuples into a parameter list of elements.
+- So you can omit the keyword _case_.
+
+```scala
+val l1 = List(1, 2, 3)
+val l2 = List(10, 20, 30)
+val tuples: List[(Int, Int)] = l1 zip l2
+
+// Scala 2 style mapping function with pattern matching
+val sums1 = tuples map { case (x, y) => x + y }
+
+// Scala 3 style mapping function with untupled parameters
+val sums2 = tuples map { (x, y) => x + y }
+val sums3 = tuples map { _ + _ }
+```
+
+
+---
+
 <a name="ref_other_features"/>
 
 # Other Features
@@ -1957,6 +1987,8 @@ h("a", _.toUpperCase)    // ok // but missing parameter type error in Scala 2
   [https://github.com/hermannhueck/taste-of-dotty](https://github.com/hermannhueck/taste-of-dotty)
 - Dotty Documention
   [https://dotty.epfl.ch/docs/](https://dotty.epfl.ch/docs/)
+- Scala 2 Roadmap Update: the Road to Scala 3
+  https://www.scala-lang.org/2019/12/18/road-to-scala-3.html
 
 ---
 
