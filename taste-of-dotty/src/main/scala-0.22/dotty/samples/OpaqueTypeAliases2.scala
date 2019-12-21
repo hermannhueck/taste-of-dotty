@@ -16,16 +16,15 @@ object Logarithms {
   }
 
   // Extension methods define opaque types' public APIs
-  /*
   given logarithmOps: (x: Logarithm) extended with {
-    def (x: Logarithm) toDouble: Double = math.exp(x)
-    def (x: Logarithm) + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
-    def (x: Logarithm) * (y: Logarithm): Logarithm = Logarithm(x + y)
+    def toDouble: Double = math.exp(x)
+    def + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
+    def * (y: Logarithm): Logarithm = Logarithm(x + y)
   }
-  */
-  def (x: Logarithm) toDouble: Double = math.exp(x)
-  def (x: Logarithm) + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
-  def (x: Logarithm) * (y: Logarithm): Logarithm = Logarithm(x + y)
+
+  //def (x: Logarithm) toDouble: Double = math.exp(x)
+  //def (x: Logarithm) + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
+  //def (x: Logarithm) * (y: Logarithm): Logarithm = Logarithm(x + y)
 }
 
 
