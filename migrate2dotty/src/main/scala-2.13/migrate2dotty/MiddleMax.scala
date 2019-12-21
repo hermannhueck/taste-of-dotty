@@ -1,7 +1,5 @@
 package migrate2dotty
 
-import scala.util.chaining._
-
 object MiddleMax extends App {
 
   def middlemax[T: Ordering](xs: List[T]): List[T] = {
@@ -28,12 +26,10 @@ object MiddleMax extends App {
     @inline def mimax: List[T] = middlemax(xs)
   }
 
-  def line(width: Int = 50): String =
-    "\u2500" * width  
-
-  import scala.language.implicitConversions
+  import scala.util.chaining._
+  import util._
   
-  line(80) pipe println
+  lineStart(80) pipe println
   
   val l1 = List(1, 2, 3, 4, 5, 6) tap println
   l1.mimax.ensuring {
@@ -51,5 +47,5 @@ object MiddleMax extends App {
   val l3 = ints.toList tap println
   l3.mimax pipe println
 
-  line(80) pipe println
+  lineEnd() pipe println
 }

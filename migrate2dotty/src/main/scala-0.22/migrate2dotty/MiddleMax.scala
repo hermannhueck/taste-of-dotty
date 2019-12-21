@@ -1,13 +1,11 @@
 package migrate2dotty
 
-import scala.util.chaining._
-
-def [T: Ordering](xs: List[T]) mimax: List[T] =
+def [T: Ordering](xs: List[T]) mimax: List[T] = {
 
   val sorted = xs.sorted.reverse
 
   val (middle, listEvenLength) =
-    if sorted.length % 2 == 0 then
+    if sorted.length % 2 == 0
       (List.empty[T], sorted)
     else
       (List(sorted.head), sorted.tail)
@@ -23,16 +21,15 @@ def [T: Ordering](xs: List[T]) mimax: List[T] =
     .swap  // (List[T], List[T])
 
   l1.sorted ++ middle ++ l2
+}
 
+@main def MiddleMax(ints: Int*) = {
 
-def line(width: Int = 50): String =
-  "\u2500" * width  
-
-@main def middleMax(ints: Int*) =
-
+  import scala.util.chaining._
   import scala.language.implicitConversions
+  import util._
 
-  line(80) pipe println
+  lineStart() pipe println
   
   val l1 = List(1, 2, 3, 4, 5, 6) tap println
   l1.mimax.ensuring {
@@ -49,4 +46,5 @@ def line(width: Int = 50): String =
   val l3 = ints.toList tap println
   l3.mimax pipe println
 
-  line(80) pipe println
+  lineEnd() pipe println
+}

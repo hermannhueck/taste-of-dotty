@@ -48,11 +48,11 @@ object Monad {
 } 
  
 
-def compute[A, B, F[_]: Monad](fInt1: F[A], fInt2: F[B]): F[(A, B)] =
+def compute[F[?]: Monad, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
   for
-    i1 <- fInt1
-    i2 <- fInt2
-  yield (i1, i2)
+    a <- fa
+    b <- fb
+  yield (a, b)
 
 
 
