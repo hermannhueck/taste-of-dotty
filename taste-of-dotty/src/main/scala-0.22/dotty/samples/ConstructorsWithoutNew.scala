@@ -9,7 +9,11 @@ val sb =
 val s =
   sb.toString
 
-import util.boxed
+import scala.util.chaining._
+import scala.language.implicitConversions
+import util._
 
 @main def withoutNew =
-  println(s.boxed())
+  println(lineStart())
+  println(s.red)
+  println(lineEnd())

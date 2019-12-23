@@ -1,4 +1,4 @@
-package migrate2dotty
+package dotty.samples.context
 
 trait Functor[F[_]] {
   def map[A, B](x: F[A])(f: A => B): F[B]
