@@ -2,35 +2,28 @@ package dotty.samples
 
 object Geometry {
 
-  opaque type Length = Double
-  opaque type Area = Double
+  final case class Length(double: Double)
+  final case class Area(double: Double)
 
-  enum Shape {
+  sealed trait Shape extends Product with Serializable {
 
-    case Circle(radius: Length)
-    case Rectangle(width: Length, height: Length)
+    import Shape._
 
-    def area: Area = this match
-      case Circle(r) => math.Pi * r * r
-      case Rectangle(w, h) => w * h
+    def area: Area = this match {
+      case Circle(r) => Area(math.Pi * r.double * r.double)
+      case Rectangle(w, h) => Area(w.double * h.double)
+    }
 
-    def circumference: Length = this match
-      case Circle(r) => 2 * math.Pi * r
-      case Rectangle(w, h) => 2 * w + 2 * h
+    def circumference: Length = this match {
+      case Circle(r) => Length(2 * math.Pi * r.double)
+      case Rectangle(w, h) => Length(2 * w.double + 2 * h.double)
+    }
   }
 
-  object Length {
-    def apply(d: Double): Length = d
+  object Shape {
+    final case class Circle(radius: Length) extends Shape
+    final case class Rectangle(width: Length, height: Length) extends Shape
   }
-  object Area {
-    def apply(d: Double): Area = d
-  }
-
-  given (length: Length) extended with
-    def double: Double = length
-
-  given (area: Area) extended with
-    def double: Double = area
 }
 
 import scala.util.chaining._
@@ -40,7 +33,7 @@ import util._
 import Geometry._
 import Geometry.Shape._
 
-@main def Shapes: Unit =
+object Shapes extends App {
 
   lineStart() pipe println
 
@@ -57,5 +50,4 @@ import Geometry.Shape._
   f"circle circumference: $cCircumferenceDouble%.3f" pipe println
 
   lineEnd() pipe println
-
-  println(lineEnd())
+}

@@ -1308,8 +1308,10 @@ object Geometry {
   object Length { def apply(d: Double): Length = d }
   object Area { def apply(d: Double): Area = d }
 
-  def (length: Length) l2Double: Double = length
-  def (area: Area) a2Double: Double = area
+  given (length: Length) extended with
+    def double: Double = length
+  given (area: Area) extended with
+    def double: Double = area
 }
 ```
 
@@ -1328,11 +1330,13 @@ import Geometry.Shape._
 
 val circle = Circle(Length(1.0))
 
+// val cArea: Double = circle.area // error: found: Area, required: Double
 val cArea: Area = circle.area
-val cAreaDouble: Double = cArea.a2Double
+val cAreaDouble: Double = cArea.double
 
+// val cCircumference: Double = circle.circumference // error: found: Length, required: Double
 val cCircumference: Length = circle.circumference
-val cCircumferenceDouble: Double = cCircumference.l2Double
+val cCircumferenceDouble: Double = cCircumference.double
 ```
 
 ---
