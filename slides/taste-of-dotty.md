@@ -1932,14 +1932,30 @@ val sums3 = tuples map { _ + _ }
 
 ---
 
-### Other Features
+### Dropped Scala 2 Features
 
-- Open Classes: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/open-classes.html)
-- Parameter Untupling: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html)
-- Kind Polymorphism: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html)
-- Tupled Function: see [here](https://dotty.epfl.ch/docs/reference/other-new-features/tupled-function.html)
-- Macros: Quotes and Splices: see [here](https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html)
-- Dropped Scala 2 Macros: see [here](https://dotty.epfl.ch/docs/reference/dropped-features/macros.html)
+- [Dropped Limit 22 for Tuples and Functions](https://dotty.epfl.ch/docs/reference/dropped-features/limit22.html)
+- [Dropped Procedure Syntax](https://dotty.epfl.ch/docs/reference/dropped-features/procedure-syntax.html)
+- [Dropped Symbol Literals](https://dotty.epfl.ch/docs/reference/dropped-features/symlits.html)
+- [Dropped DelayedInit](https://dotty.epfl.ch/docs/reference/dropped-features/delayed-init.html)
+- [Dropped Auto-Application](https://dotty.epfl.ch/docs/reference/dropped-features/auto-apply.html)
+- [Dropped Early Initializers](https://dotty.epfl.ch/docs/reference/dropped-features/early-initializers.html)
+- [Dropped Existential Types](https://dotty.epfl.ch/docs/reference/dropped-features/existential-types.html)
+- [Dropped Type Projection](https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html)
+- [Dropped Scala 2 Macros](https://dotty.epfl.ch/docs/reference/dropped-features/macros.html)
+- and more ...
+
+---
+
+### New or Changed Features
+
+- [Open Classes](https://dotty.epfl.ch/docs/reference/other-new-features/open-classes.html)
+- [Improved Lazy Vals Initialization](https://dotty.epfl.ch/docs/reference/changed-features/lazy-vals-init.html)
+- [Kind Polymorphism](https://dotty.epfl.ch/docs/reference/other-new-features/kind-polymorphism.html)
+- [Tupled Function](https://dotty.epfl.ch/docs/reference/other-new-features/tupled-function.html)
+- [Option-less pattern matching](https://dotty.epfl.ch/docs/reference/changed-features/pattern-matching.html)
+- [Macros: Quotes and Splices](https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html)
+- [Multiversal Equality](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
 - and more ...
 
 ---
