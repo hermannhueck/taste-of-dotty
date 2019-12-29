@@ -28,11 +28,8 @@ lazy val root = project
 
 lazy val `taste-of-dotty` = project
   .in(file(projectName))
-  .enablePlugins(BuildInfoPlugin)
   .settings(
     name := projectName,
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "build",
     scalacOptions ++= scalacOptionsFor(scalaVersion.value),
     libraryDependencies ++= dependenciesFor(scalaVersion.value),
   )
