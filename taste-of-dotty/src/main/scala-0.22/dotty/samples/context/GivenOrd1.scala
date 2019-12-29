@@ -11,7 +11,7 @@ object Ord1 {
   // instance for Int (with symbol)
   given intOrd: Ord[Int]
     def compare(x: Int, y: Int) =
-      if (x < y) -1 else if (x > y) +1 else 0
+      if x < y then -1 else if x > y then +1 else 0
 
   given listOrd[T](given ord: Ord[T]): Ord[List[T]] {
 

@@ -12,7 +12,7 @@ object Logarithms {
     def apply(d: Double): Logarithm = math.log(d)
 
     def safe(d: Double): Option[Logarithm] =
-      if (d > 0.0) Some(math.log(d)) else None
+      if d > 0.0 then Some(math.log(d)) else None
   }
 
   // Extension methods define opaque types' public APIs

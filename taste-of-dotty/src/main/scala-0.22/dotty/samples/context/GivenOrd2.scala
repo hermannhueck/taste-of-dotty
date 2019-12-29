@@ -10,7 +10,7 @@ object Ord2 {
   // instance for Int (without symbol)
   given Ord[Int]
     def compare(x: Int, y: Int) =
-      if (x < y) -1 else if (x > y) +1 else 0
+      if x < y then -1 else if x > y then +1 else 0
 
   given [T](given Ord[T]): Ord[List[T]] {
 
@@ -20,12 +20,12 @@ object Ord2 {
       case (_, Nil) => +1
       case (x :: xs1, y :: ys1) =>
         val fst = summon[Ord[T]].compare(x, y)
-        if (fst != 0) fst else compare(xs1, ys1)
+        if fst != 0 then fst else compare(xs1, ys1)
     }
   }
 
   def max[T](x: T, y: T)(given Ord[T]): T =
-    if (summon[Ord[T]].compare(x, y) < 0) y else x
+    if summon[Ord[T]].compare(x, y) < 0 then y else x
 
   def maximum[T](xs: List[T])(given Ord[T]): T =
     xs.reduceLeft(max)

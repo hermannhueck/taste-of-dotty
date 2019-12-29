@@ -65,8 +65,10 @@ object Inline {
   }
   
   inline def choose(b: Boolean) <: A = {
-    if (b) new A()
-    else new B()
+    if b
+      A()
+    else
+      B()
   }
   
   val obj1 = choose(true)  // static type is A
