@@ -1250,7 +1250,7 @@ val eResult = compute(e1, e2) // Right((1,10))
 - The alias definition is visible only within that scope.
 - Outside the scope only the defined alias is visible.
 - Opaque type aliases are compiled away and have no runtime overhead.
-- In Scala 2 one could extend _Anyval_ in order to avoid boxing (which didn't work well in some cases).
+- In Scala 2 one could use [Value Classes](https://docs.scala-lang.org/overviews/core/value-classes.html) to avoid boxing. (Many limitations!)
 
 ---
 
@@ -1259,7 +1259,7 @@ object Geometry {
   opaque type Length = Double
   opaque type Area = Double
 
-  enum Shape
+  enum Shape {
     case Circle(radius: Length)
     case Rectangle(width: Length, height: Length)
 
@@ -1269,6 +1269,7 @@ object Geometry {
     def circumference: Length = this match
       case Circle(r) => 2 * math.Pi * r
       case Rectangle(w, h) => 2 * w + 2 * h
+  }
 
   object Length { def apply(d: Double): Length = d }
   object Area { def apply(d: Double): Area = d }
