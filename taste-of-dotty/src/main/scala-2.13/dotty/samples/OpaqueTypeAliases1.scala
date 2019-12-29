@@ -2,8 +2,8 @@ package dotty.samples
 
 object Geometry {
 
-  final case class Length(double: Double)
-  final case class Area(double: Double)
+  final case class Length(double: Double) extends AnyVal
+  final case class Area(double: Double) extends AnyVal
 
   sealed trait Shape extends Product with Serializable {
 
