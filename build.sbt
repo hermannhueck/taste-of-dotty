@@ -48,7 +48,7 @@ inThisBuild(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(`taste-of-dotty`, migrate2dotty)
+  .aggregate(`taste-of-dotty`)
   .settings(
     name := "root",
     publish / skip := true
@@ -59,17 +59,6 @@ lazy val `taste-of-dotty` = project
   .enablePlugins(BuildInfoPlugin)
   .settings(
     name := projectName,
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "build",
-    libraryDependencies := dependenciesFor(libraryDependencies.value, scalaVersion.value),
-    scalacOptions := scalacOptionsFor(scalacOptions.value, scalaVersion.value)
-  )
-
-lazy val migrate2dotty = project
-  .in(file("migrate2dotty"))
-  .enablePlugins(BuildInfoPlugin)
-  .settings(
-    name := "migrate2dotty",
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "build",
     libraryDependencies := dependenciesFor(libraryDependencies.value, scalaVersion.value),
