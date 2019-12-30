@@ -32,7 +32,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - [Indentation / Optional Braces](#ref_indentation_optional_braces)
 - [New Control Syntax](#ref_new_control_syntax)
 - [Main Methods](#ref_main_methods)
-- [Constructors without _new_](#ref_constructors_without_new)
+- [Constructor Invocations w/o _new_](#ref_constructors_without_new)
 - [Traits with Parameters](#ref_traits_with_parameters)
 - [Enums and ADTs](#ref_enums_and_adts)
 - [Intersection Types](#ref_intersection_types)
@@ -383,7 +383,7 @@ def boxed(what: Any): String =
 
 <a name="ref_constructors_without_new"/>
 
-# Constructors without _new_[^9]
+# Constructor Invocations w/o _new_[^9]
 
 [^9]: [https://dotty.epfl.ch/docs/reference/other-new-features/creator-applications.html](https://dotty.epfl.ch/docs/reference/other-new-features/creator-applications.html)
 
