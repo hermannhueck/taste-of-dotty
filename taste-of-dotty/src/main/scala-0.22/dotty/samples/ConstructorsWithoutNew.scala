@@ -14,6 +14,6 @@ import scala.language.implicitConversions
 import util._
 
 @main def withoutNew =
-  println(lineStart())
+  printStartLine()
   println(s.red)
-  println(lineEnd())
+  printEndLine()

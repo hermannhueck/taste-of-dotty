@@ -14,7 +14,7 @@ class B
   import scala.language.implicitConversions
   import util._
 
-  lineStart() pipe println
+  printStartLine()
 
   val b = new B
 
@@ -23,4 +23,4 @@ class B
   val bString = b.aString ensuring (_ == 42.toString)
   bString pipe println
 
-  lineEnd() pipe println
+  printEndLine()

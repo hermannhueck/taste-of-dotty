@@ -47,7 +47,7 @@ import util._
 
 @main def GivenOrd2: Unit =
 
-  lineStart() pipe println
+  printStartLine()
   
   // max(2, 3)(given intOrd) pipe ( x => println(s"max(2, 3) = $x"))
   max(2, 3) pipe ( x => println(s"max(2, 3) = $x"))
@@ -61,4 +61,4 @@ import util._
   maximum(xs)(given descending(given summon[Ord[Int]]))
   // maximum(xs)(given descending(given ListOrd(given IntOrd)))
       
-  lineEnd() pipe println
+  printEndLine()

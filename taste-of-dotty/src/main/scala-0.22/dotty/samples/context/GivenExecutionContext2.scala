@@ -10,7 +10,7 @@ import util._
 
 @main def GivenExecutionContext2: Unit =
 
-  lineStart() pipe println
+  printStartLine()
 
   // import ExecutionContext.Implicits.global
   import ExecutionContext.Implicits.{given ExecutionContext}
@@ -29,4 +29,4 @@ import util._
 
   Thread.sleep(4000L)
   
-  lineEnd() pipe println
+  printEndLine()

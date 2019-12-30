@@ -17,7 +17,7 @@ import scala.language.implicitConversions
 
 @main def testUnion: Unit =
 
-  line() pipe println
+  printLine()
 
   val name: UserName = UserName("Eve") tap println
   val password: Password = Password(123) tap println
@@ -25,4 +25,4 @@ import scala.language.implicitConversions
     if true then name else password
   either pipe println
 
-  line() pipe println
+  printLine()

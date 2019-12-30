@@ -20,10 +20,10 @@ import util._
 
 @main def ensuringPostcondition: Unit =
 
-  println(lineStart())
+  printStartLine()
 
   val xs = List(1, 2, 3)
   val sum = xs.sum.ensuring(result == 6)
   println(s"$xs.sum = $sum")
 
-  println(lineEnd())
+  printEndLine()

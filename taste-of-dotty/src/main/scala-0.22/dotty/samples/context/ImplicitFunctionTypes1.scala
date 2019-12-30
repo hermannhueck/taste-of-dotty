@@ -30,7 +30,7 @@ def g(exec: Executable[Int]) =
   
   import util._
   
-  println(lineStart())
+  printStartLine()
 
   val res1 = f(2)(given ec)   // ExecutionContext passed explicitly
   val res2 = f(2)             // ExecutionContext resolved implicitly
@@ -48,4 +48,4 @@ def g(exec: Executable[Int]) =
   println(res5) //=> 484 (result of 22*22)
   println(res6) //=> 484 (result of 22*22)
 
-  println(lineEnd())
+  printEndLine()

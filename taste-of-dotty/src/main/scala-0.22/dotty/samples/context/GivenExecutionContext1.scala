@@ -10,7 +10,7 @@ import util._
 
 @main def GivenExecutionContext1: Unit =
 
-  lineStart() pipe println
+  printStartLine()
 
   // implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
   given ec: ExecutionContext = ExecutionContext.global // variable ec can be omitted
@@ -29,4 +29,4 @@ import util._
 
   Thread.sleep(4000L)
   
-  lineEnd() pipe println
+  printEndLine()

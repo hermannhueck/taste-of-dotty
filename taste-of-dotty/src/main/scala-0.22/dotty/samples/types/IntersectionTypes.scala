@@ -26,7 +26,7 @@ import scala.util.chaining._
 import scala.language.implicitConversions
 
 @main def testIntersect: Unit =
-  line() pipe println
+  printLine()
   val obj = new MyClass(42) // 42
   obj.x.toString.green pipe println
   obj.reset() // 0
@@ -35,4 +35,4 @@ import scala.language.implicitConversions
   obj.x.toString.green pipe println
   f(obj) // -21
   obj.x.toString.green pipe println
-  line() pipe println
+  printLine()

@@ -62,7 +62,7 @@ import util._
 
 @main def MonadExample: Unit =
 
-  lineStart() pipe println
+  printStartLine()
 
   println("----- List:")
 
@@ -94,4 +94,4 @@ import util._
   val eResult = compute(e1, e2)
   println(eResult)
 
-  lineEnd() pipe println
+  printEndLine()

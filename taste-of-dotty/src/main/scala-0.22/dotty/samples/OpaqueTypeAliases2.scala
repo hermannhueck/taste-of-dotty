@@ -40,7 +40,7 @@ import Predef.{any2stringadd => _, _}
 
 @main def logarisms: Unit =
 
-  lineStart() pipe println
+  printStartLine()
 
   val l = Logarithm(1.0) tap println
   val l2 = Logarithm(2.0) tap println
@@ -53,7 +53,7 @@ import Predef.{any2stringadd => _, _}
   // l * 2                   // error: found: Int(2), required: Logarithm
   // l / l2                  // error: `/` is not a member for Logarithm
 
-  lineEnd() pipe println
+  printEndLine()
 
 // Aside: the any2stringadd => _ import suppression is necessary since otherwise the universal + operation
 // in Predef would take precedence over the + extension method in logarithmOps.

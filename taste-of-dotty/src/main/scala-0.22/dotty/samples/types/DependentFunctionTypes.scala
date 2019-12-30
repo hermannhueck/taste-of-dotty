@@ -22,7 +22,7 @@ object DependentFunctionTypes {
     import scala.util.chaining._
     import scala.language.implicitConversions
 
-    lineStart() pipe println
+    printStartLine()
 
     val intKey1 = extractKey(intEntry) tap println
     val intKey2 = extractor(intEntry) tap println
@@ -32,5 +32,5 @@ object DependentFunctionTypes {
     assert(intKey1 == intKey2)
     assert(stringKey1 == stringKey2)
 
-    lineEnd() pipe println
+    printEndLine()
 }

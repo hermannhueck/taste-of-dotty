@@ -19,10 +19,10 @@ val sums3 = tuples map { _ + _ }
   import scala.language.implicitConversions
   import util._
 
-  lineStart() pipe println
+  printStartLine()
 
   println(s"sums1 = $sums1")
   println(s"sums2 = $sums2")
   println(s"sums3 = $sums3")
   
-  lineEnd() pipe println
+  printEndLine()

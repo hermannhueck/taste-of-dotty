@@ -1,5 +1,14 @@
 package object util {
 
+  def printStartLine(width: Int = 80, color: String = Console.GREEN): Unit =
+    println(lineStart(width, color))
+
+  def printEndLine(width: Int = 80): Unit =
+    println(lineEnd(width))
+
+  def printLine(width: Int = 80): Unit =
+    println(line(width))
+
   def line(width: Int = 80): String =
     "\u2500" * width
 

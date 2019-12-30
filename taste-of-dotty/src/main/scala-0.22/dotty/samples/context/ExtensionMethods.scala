@@ -14,9 +14,9 @@ import scala.util.chaining._
 import util._
 
 @main def testExtensions: Unit =
-  line() pipe println
+  printLine()
   cf1 pipe println
   cf2 pipe println
   (cf1 == cf2) pipe println
   assert(cf1 == cf2)
-  line() pipe println
+  printLine()

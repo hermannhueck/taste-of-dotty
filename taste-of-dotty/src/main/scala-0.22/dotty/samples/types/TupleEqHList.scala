@@ -17,11 +17,11 @@ object TupleEqHList {
     import scala.util.chaining._
     import scala.language.implicitConversions
 
-    lineStart() pipe println
+    printStartLine()
 
     isb1 pipe println // (42,foo,true)
     isb2 pipe println // (42,foo,true)
     assert(isb1 == isb2) // identical types
 
-    lineEnd() pipe println
+    printEndLine()
 }
