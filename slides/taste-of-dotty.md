@@ -61,6 +61,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - [Export Clauses](#ref_export_clauses)
 - [Explicit Nulls](#ref_explicit_nulls)
 - [_inline_](#ref_inline)
+- [Multiversial Equality](#ref_multiversial_equality)
 - [Typeclass Derivation](#ref_typeclass_derivation)
 - [Given By-Name Parameters](#ref_given_byname_parameters)
 - [Implicit Resolution](#ref_implicit_resolution)
@@ -1723,11 +1724,133 @@ val res2: (String, String) = g("test") // Has type (String, String)
 
 ---
 
+<a name="ref_multiversial_equality"/>
+
+# Multiversial
+# Equality[^34] [^35]
+
+[^34]: [https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
+
+[^35]: [https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/](https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/)
+
+---
+
+### Universial Equality
+
+- In Scala 2 and Scala 3 you can compare values of any two different types with == and !=.
+- These comparisons are not type safe.
+- The operators internally use _Any#equals_.
+- This is the heritage of _java.lang.Object#equals_
+  
+<br/>
+
+```scala
+final case class Foo()
+
+Foo() == Foo()         // true
+Foo() == Option(Foo()) // false - but should not compile
+```
+
+---
+
+### Multiversial or Strict Equality (1/5)
+
+- Scala 3 gives you strict equality as an opt-in feature.
+- Import _scala.language.strictEquality_ or add _-language:strictEquality_ to scalacOptions.
+- Enabling this feature prevents successful compilation for all comparisons ...
+- ... with some exceptions. You can still compare numbers.
+  
+<br/>
+
+```scala
+scala.language.strictEquality
+
+Foo() == Foo()         // does not compile
+Foo() == Option(Foo()) // does not compile
+```
+
+---
+
+### Multiversial or Strict Equality (2/5)
+
+- For the types you want to compare you have to provide an _Eql_ instance.
+  
+<br/>
+<br/>
+
+```scala
+given Eql[Foo, Foo] = Eql.derived
+
+Foo() == Foo()         // compiles; result: true
+Foo() == Option(Foo()) // does not compile, as we want
+```
+
+---
+
+### Multiversial or Strict Equality (3/5)
+
+- You can also use the _derives_ clause when defining your class.
+  
+<br/>
+
+```scala
+final case class Bar() derives Eql
+// this is equivalent to
+// given Eql[Bar, Bar] = Eql.derived
+
+Bar() == Bar()            // true
+Bar() == Option(Bar())    // does not compile
+
+// you can still not compare _Foo_'s with _Bar_'s.
+Foo() == Bar()            // does not compile
+Bar() == Foo()            // does not compile
+```
+
+---
+
+### Multiversial or Strict Equality (4/5)
+
+- If you want to compare _Foo_'s with _Bar_'s ...
+- provide two _Eql_ instances which allow the comparison.
+  
+<br/>
+
+```scala
+given Eql[Foo, Bar] = Eql.derived
+given Eql[Bar, Foo] = Eql.derived
+
+Foo() == Bar()          // compiles; result is false
+Bar() == Foo()          // compiles; result is false
+```
+
+---
+
+### Multiversial or Strict Equality (5/5)
+
+- The Scala standard library provides bidirectional Eql instances for several types:
+- Numeric types can be compared with each other and with _java.lang.Number_.
+- _Boolean_ can be compared to _Boolean_ and to _java.lang.Boolean_.
+- _Char_ can be compared to _Char_ and to _java.lang.Character_.
+- _Seq[T]_ can be compared to _Seq[T]_ (or any sub type) if their element types can be compared.
+- _Set[T]_ can be compared to _Set[T]_ (or any sub type) if their element types can be compared.
+- Any subtype of _AnyRef_ can be compared with _Null_.
+  
+<br/>
+
+```scala
+42 == 42L                         // true
+42 == 42.0                        // true
+List(1, 2, 3) == Vector(1, 2, 3)  // true
+Foo() == null                     // false
+```
+
+---
+
 <a name="ref_typeclass_derivation"/>
 
-# Typeclass Derivation[^34]
+# Typeclass Derivation[^36]
 
-[^34]: [https://dotty.epfl.ch/docs/reference/contextual/derivation.html](https://dotty.epfl.ch/docs/reference/contextual/derivation.html)
+[^36]: [https://dotty.epfl.ch/docs/reference/contextual/derivation.html](https://dotty.epfl.ch/docs/reference/contextual/derivation.html)
 
 ---
 
@@ -1802,9 +1925,9 @@ assert(tree1 !== tree3)
 
 <a name="ref_given_byname_parameters"/>
 
-# Given By-Name Parameters[^35]
+# Given By-Name Parameters[^37]
 
-[^35]: [https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html](https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html)
+[^37]: [https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html](https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html)
 
 ---
 
@@ -1834,9 +1957,9 @@ s.write(None)
 
 <a name="ref_implicit_resolution"/>
 
-# Implicit Resolution[^36]
+# Implicit Resolution[^38]
 
-[^36]: [https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
+[^38]: [https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
 
 ---
 
@@ -1852,9 +1975,9 @@ s.write(None)
 
 <a name="ref_overload_resolution"/>
 
-# Overload Resolution[^37]
+# Overload Resolution[^39]
 
-[^37]: [https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html)
+[^39]: [https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html)
 
 ---
 
@@ -1899,9 +2022,9 @@ h("a", _.toUpperCase)    // ok // but missing parameter type error in Scala 2
 
 <a name="ref_parameter_untupling"/>
 
-# Parameter Untupling[^38]
+# Parameter Untupling[^40]
 
-[^38]: [https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html](https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html)
+[^40]: [https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html](https://dotty.epfl.ch/docs/reference/other-new-features/parameter-untupling.html)
 
 ---
 
@@ -1956,7 +2079,6 @@ val sums3 = tuples map { _ + _ }
 - [Tupled Function](https://dotty.epfl.ch/docs/reference/other-new-features/tupled-function.html)
 - [Option-less pattern matching](https://dotty.epfl.ch/docs/reference/changed-features/pattern-matching.html)
 - [Macros: Quotes and Splices](https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html)
-- [Multiversal Equality](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
 - and more ...
 
 ---
