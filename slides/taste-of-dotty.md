@@ -2096,7 +2096,7 @@ val sums3 = tuples map { _ + _ }
 - Dotty Documention
   [https://dotty.epfl.ch/docs/](https://dotty.epfl.ch/docs/)
 - Scala 2 Roadmap Update: the Road to Scala 3
-  https://www.scala-lang.org/2019/12/18/road-to-scala-3.html
+  [https://www.scala-lang.org/2019/12/18/road-to-scala-3.html](https://www.scala-lang.org/2019/12/18/road-to-scala-3.html)
 
 ---
 
@@ -2114,6 +2114,8 @@ val sums3 = tuples map { _ + _ }
   [https://www.youtube.com/watch?v=lMvOykNQ4zs](https://www.youtube.com/watch?v=lMvOykNQ4zs)
 - Lukas Rytz at ScalaDays Lausanne: How are we going to migrate to Scala 3.0, aka Dotty? (published July 2019)
   [https://www.youtube.com/watch?v=KUl1Ilcf0b8](https://www.youtube.com/watch?v=KUl1Ilcf0b8)
+- Sébastien Doeraene at ScalaSphere Krakov: How will TASTy affect the Scala ecosystem, exactly? (published January 2020)
+  [https://www.youtube.com/watch?v=_N7zNhLdB1Y](https://www.youtube.com/watch?v=_N7zNhLdB1Y)
 - Josh Suereth & James Ward at Devoxx Belgium: What's coming in Scala 3 (published November 2019)
   [https://www.youtube.com/watch?v=Nv-BzYOMiWY](https://www.youtube.com/watch?v=Nv-BzYOMiWY)
 
