@@ -28,6 +28,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 - [Design Goals](#ref_design_goals)
 - [Project Setup](#ref_project_setup)
+- [Using Scala 2 Libraries](#ref_using_scala2_libraries)
 - [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
 - [Indentation / Optional Braces](#ref_indentation_optional_braces)
 - [New Control Syntax](#ref_new_control_syntax)
@@ -90,22 +91,6 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 ---
 
-### Changes are Fundamental
-
-#### TODO: quote
-
-<br/>
-
-- _Scala books have to be rewritten._
-
-- _Scala MOOCs must be rerecorded._
-
-<br/>
-
-(Martin Odersky at Scala Days 2019 in Lausanne)
-
----
-
 <a name="ref_project_setup"/>
 
 # Project Setup[^2]
@@ -143,7 +128,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 - create new project: _sbt new lampepfl/dotty.g8_
 - (or: _sbt new lampepfl/dotty-cross.g8_ for a cross-build project)
-- _cd_ to project directory.
+- _cd_ to project directory
 - in the project directory: _sbt launchIDE_
   (starts VSCode with the current folder as workspace,
   installs the Dotty Language Server in VSCode)
@@ -153,7 +138,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 ### build.sbt
 
 ```scala
-// val dottyVersion = "0.20.0-RC1"
+// val dottyVersion = "0.21.0-RC1"
 // use latest nightly build of dotty
 val dottyVersion = dottyLatestNightlyBuild.get
 
@@ -188,8 +173,36 @@ addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
 
 ```scala
 // change to latest sbt version
-// 1.3.5 in December 2019
+// 1.3.6 in January 2020
 sbt.version=1.2.7
+```
+
+---
+
+<a name="ref_using_scala2_libraries"/>
+
+# Using Scala 2 Libraries[^4a]
+
+[^4a]: [https://github.com/lampepfl/dotty-example-project#getting-your-project-to-compile-with-dotty](https://github.com/lampepfl/dotty-example-project#getting-your-project-to-compile-with-dotty)
+
+---
+
+### Using Scala 2 Libraries
+
+- Dotty can already utilize Scala 2 libraries.
+- This works because Dotty is currently retro-compatible with Scala 2.x.
+- This allows to migrate to Dotty, even before 3rd party dependencies have been migrated.
+
+<br/>
+
+```scala
+// build.sbt
+
+libraryDependencies ++= Seq(
+    "org.typelevel" %% "cats-effect" % catsEffectVersion,
+    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+  ).map(module => module.withDottyCompat(scalaVersion.value))
+
 ```
 
 ---
