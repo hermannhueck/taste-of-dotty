@@ -5,6 +5,19 @@ object Geometry {
   opaque type Length = Double
   opaque type Area = Double
 
+  object Length {
+    def apply(d: Double): Length = d
+  }
+  object Area {
+    def apply(d: Double): Area = d
+  }
+
+  extension on (length: Length)
+    def double: Double = length
+
+  extension on (area: Area)
+    def double: Double = area
+
   enum Shape {
 
     case Circle(radius: Length)
@@ -18,19 +31,6 @@ object Geometry {
       case Circle(r) => 2 * math.Pi * r
       case Rectangle(w, h) => 2 * w + 2 * h
   }
-
-  object Length {
-    def apply(d: Double): Length = d
-  }
-  object Area {
-    def apply(d: Double): Area = d
-  }
-
-  given (length: Length) extended with
-    def double: Double = length
-
-  given (area: Area) extended with
-    def double: Double = area
 }
 
 import scala.util.chaining._

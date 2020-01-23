@@ -161,7 +161,7 @@ lazy val root = project
 
 ```scala
 // sbt-dotty plugin
-addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.3.4")
+addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.0")
 ```
 
 ---
@@ -858,7 +858,7 @@ Syntax can easily be mixed up with other implicit constructs.
 ```scala
 case class Circle(x: Double, y: Double, radius: Double)
 
-def (c: Circle) circumference: Double = c.radius * math.Pi * 2
+def (c: Circle).circumference: Double = c.radius * math.Pi * 2
 
 val circle = Circle(0, 0, 1)
 
@@ -1273,6 +1273,14 @@ object Geometry {
   opaque type Length = Double
   opaque type Area = Double
 
+  object Length { def apply(d: Double): Length = d }
+  object Area { def apply(d: Double): Area = d }
+
+  extension on (length: Length)
+    def double: Double = length
+  extension on (area: Area)
+    def double: Double = area
+
   enum Shape {
     case Circle(radius: Length)
     case Rectangle(width: Length, height: Length)
@@ -1284,14 +1292,6 @@ object Geometry {
       case Circle(r) => 2 * math.Pi * r
       case Rectangle(w, h) => 2 * w + 2 * h
   }
-
-  object Length { def apply(d: Double): Length = d }
-  object Area { def apply(d: Double): Area = d }
-
-  given (length: Length) extended with
-    def double: Double = length
-  given (area: Area) extended with
-    def double: Double = area
 }
 ```
 

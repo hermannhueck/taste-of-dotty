@@ -2,7 +2,7 @@ package dotty.samples.context
 
 case class Circle(x: Double, y: Double, radius: Double)
 
-def (c: Circle) circumference: Double = c.radius * math.Pi * 2
+def (c: Circle).circumference: Double = c.radius * math.Pi * 2
 
 val circle = Circle(0, 0, 1)
 
