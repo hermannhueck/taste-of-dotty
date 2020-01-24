@@ -33,18 +33,11 @@ object Monad {
     override def [A, B](option: Option[A]) flatMap (f: A => Option[B]): Option[B] =
       option flatMap f
   
-  given [L]: Monad[[R] =>> Either[L, R]]
-    def pure[A](a: A): Either[L, A] = Right(a)
-    def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
+  // given [L]: Monad[[R] =>> Either[L, R]]
+  given [L]: Monad[Either[L, *]] // requires -Ykind-projector
+    override def pure[A](a: A): Either[L, A] = Right(a)
+    override def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
       fa flatMap f
-
-  /*
-  // TODO: placeholder * not yet implemented in current nightly at 2019-12-17
-  given [L]: Monad[Either[L, *]]
-    def pure[A](a: A): Either[L, A] = Right(a)
-    def [A, B](fa: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] =
-      fa flatMap f
-  */
 } 
  
 
