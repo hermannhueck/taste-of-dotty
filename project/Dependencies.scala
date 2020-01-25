@@ -18,11 +18,15 @@ object Dependencies {
   
   lazy val javaDependencies =
     Seq("com.novocode" % "junit-interface" % junitVersion % Test)
-  
+
+  def dottyDependencies(scalaVersion: String): Seq[ModuleID] =
+    Seq("ch.epfl.lamp" %% "dotty-staging" % scalaVersion)
+
   def dependenciesFor(scalaVersion: String): Seq[ModuleID] =
     if (scalaVersion.startsWith("0.")) {
       // Dotty dependencies
       commonDependencies.map(_.withDottyCompat(scalaVersion)) ++
+      dottyDependencies(scalaVersion) ++
       javaDependencies
     } else {
       // Scala 2.x dependencies
