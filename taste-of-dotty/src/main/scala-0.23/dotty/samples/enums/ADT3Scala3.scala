@@ -1,6 +1,6 @@
 package dotty.samples.enums
 
-enum Tree3[+T]
+enum Tree3[+T]:
   case Leaf3(elem: T)
   case Node3(left: Tree3[T], right: Tree3[T])
 

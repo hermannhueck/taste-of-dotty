@@ -2,30 +2,27 @@ package dotty.samples
 
 // Opaque types aliases provide type abstraction without any overhead.
 
-object Logarithms {
+object Logarithms:
 
   opaque type Logarithm = Double
 
-  object Logarithm {
-
+  object Logarithm:
     // These are the ways to lift to the logarithm type
     def apply(d: Double): Logarithm = math.log(d)
-
     def safe(d: Double): Option[Logarithm] =
       if d > 0.0 then Some(math.log(d)) else None
-  }
+  
 
   // Extension methods define opaque types' public APIs
-  extension on (x: Logarithm) {
+  extension on (x: Logarithm):
     def toDouble: Double = math.exp(x)
     def + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
     def * (y: Logarithm): Logarithm = Logarithm(x + y)
-  }
+
 
   //def (x: Logarithm) toDouble: Double = math.exp(x)
   //def (x: Logarithm) + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
   //def (x: Logarithm) * (y: Logarithm): Logarithm = Logarithm(x + y)
-}
 
 
 // Outside its scope, Logarithm is treated as a new abstract type. So the following operations would be valid
@@ -38,7 +35,7 @@ import util._
 import Logarithms._
 import Predef.{any2stringadd => _, _}
 
-@main def logarisms: Unit =
+@main def OpaqueTypeAliases2: Unit =
 
   printStartLine()
 

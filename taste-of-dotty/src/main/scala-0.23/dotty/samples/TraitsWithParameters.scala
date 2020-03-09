@@ -1,9 +1,9 @@
 package dotty.samples
 
-trait Greeting(val name: String)
+trait Greeting(val name: String):
   def msg = s"How are you, $name"
 
-class C extends Greeting("Bob")
+class C extends Greeting("Bob"):
   println(msg)
 
 // class D extends C with Greeting("Bill")

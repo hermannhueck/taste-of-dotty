@@ -21,8 +21,8 @@ import scala.language.implicitConversions
 
   val name: UserName = UserName("Eve") tap println
   val password: Password = Password(123) tap println
-  val either: Password | UserName =
+  val nameOrPw: UserName | Password =
     if true then name else password
-  either pipe println
+  nameOrPw pipe println
 
   printLine()

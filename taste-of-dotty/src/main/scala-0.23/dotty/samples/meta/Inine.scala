@@ -6,11 +6,10 @@ object Inline {
 
   // inline is a new soft modifier that guarantees that a definition will be inlined at the point of use. Example:
 
-  object Config {
+  object Config:
     inline val logging = false // RHS must be a constant expression (i.e. known at compile time)
-  }
-  
-  object Logger {
+
+  object Logger:
   
     private var indent = 0
   
@@ -24,7 +23,7 @@ object Inline {
         result
       else
         op
-  }
+
   
   // Recursive Inline Methods
   
@@ -32,13 +31,12 @@ object Inline {
   // the following method for power will be implemented by straight inline code without any loop or recursion.
 
   // inline def power(x: Double, n: Int): Double = {
-  inline def power(x: Double, inline n: Int): Double = {
+  inline def power(x: Double, inline n: Int): Double =
     if n == 0 then 1.0
     else if n == 1 then x
     else
       val y = power(x, n / 2)
       if n % 2 == 0 then y * y else y * y * x
-  }
   
   // power(expr, 10)
     // translates to:
@@ -60,16 +58,15 @@ object Inline {
   // Specializing Inline (Whitebox)
 
   class A
-  class B extends A {
+
+  class B extends A:
     def meth() = true
-  }
   
-  inline def choose(b: Boolean) <: A = {
+  inline def choose(b: Boolean) <: A =
     if b
       A()
     else
       B()
-  }
   
   val obj1 = choose(true)  // static type is A
   val obj2 = choose(false) // static type is B
@@ -102,10 +99,9 @@ object Inline {
   // and the type of the result is taken. If not, a compile-time error is raised that reports
   // that the match cannot be reduced.
 
-  inline def g(x: Any) <: Any = inline x match {
+  inline def g(x: Any) <: Any = inline x match
     case x: String => (x, x) // Tuple2[String, String](x, x)
     case x: Double => x
-  }
   
   val res1: Double = g(1.0d) // Has type 1.0d which is a subtype of Double
   val res2: (String, String) = g("test") // Has type (String, String)

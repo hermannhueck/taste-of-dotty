@@ -13,7 +13,7 @@ import scala.util.chaining._
 import scala.language.implicitConversions
 import util._
 
-@main def withoutNew =
+@main def ConstructorsWithoutNew =
   printStartLine()
   println(s.red)
   printEndLine()

@@ -11,7 +11,7 @@ object ExplicitNulls {
 
   // Unsoundness:
 
-  class C {
+  class C:
    val f: String = foo(f)
    def foo(f2: String|Null): String =
     val res =
@@ -21,7 +21,7 @@ object ExplicitNulls {
         f2
     println(s"\n$res\n")
     res
-  }
+
 
   @main def checkUnsoundness: Unit =
     val c = new C()

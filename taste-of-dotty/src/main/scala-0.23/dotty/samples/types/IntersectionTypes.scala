@@ -1,15 +1,15 @@
 package dotty.samples.types
 
-trait Resettable
+trait Resettable:
   def reset(): this.type
 
-trait Growable[T]
+trait Growable[T]:
   def add(x: T): this.type
 
 type ResetGrowable[T] =
   Resettable & Growable[T]
 
-class MyClass(var x : Int = 0) extends Resettable with Growable[Int]
+class MyClass(var x : Int = 0) extends Resettable with Growable[Int]:
   def reset() =
     x = 0
     this

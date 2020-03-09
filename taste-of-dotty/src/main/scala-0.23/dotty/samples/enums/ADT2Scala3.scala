@@ -1,6 +1,6 @@
 package dotty.samples.enums
 
-enum Tree2[+T]
+enum Tree2[+T]:
   case Leaf2(elem: T) extends Tree2[T]
   case Node2(left: Tree2[T], right: Tree2[T]) extends Tree2[T]
 

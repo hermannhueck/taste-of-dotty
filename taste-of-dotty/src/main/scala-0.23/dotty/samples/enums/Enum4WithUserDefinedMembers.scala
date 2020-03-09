@@ -2,7 +2,7 @@ package dotty.samples.enums
 
 import scala.Console._
 
-enum Color4(val escape: String)
+enum Color4(val escape: String):
 
   case Red extends Color4(RED)
   case Green extends Color4(GREEN)

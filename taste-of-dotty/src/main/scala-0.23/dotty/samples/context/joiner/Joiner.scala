@@ -2,22 +2,22 @@ package dotty.samples.context.joiner
 
 // Joiner in fact is Monoid.
 
-trait Joiner[A] with
+trait Joiner[A]:
   def zero: A
   def join(lhs: A, rhs: A): A
   inline def joinAll(as: A*): A =
     as.fold(zero)(join)
 
-object Joiner with
+object Joiner:
 
   def apply[A: Joiner]: Joiner[A] = summon
 
-  given Joiner[Int] with
+  given Joiner[Int]:
     override def zero: Int = 0
     override def join(lhs: Int, rhs: Int): Int =
       lhs + rhs
 
-  given [A]: Joiner[List[A]] with
+  given [A] as Joiner[List[A]]:
     override def zero: List[A] = List.empty[A]
     override def join(lhs: List[A], rhs: List[A]): List[A] =
       lhs ++ rhs

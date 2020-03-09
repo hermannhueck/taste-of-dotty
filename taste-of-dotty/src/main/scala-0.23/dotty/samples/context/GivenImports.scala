@@ -1,16 +1,16 @@
 package dotty.samples.context
 
-object A
+object A:
   class TC
-  given tc: TC
-  def f(given TC) = ???
+  given tc as TC
+  def f(using TC) = ???
 
-object B
+object B:
   import A._ // imports all members of A except the given instances
-  import A.given // imports only the given instances of A
+  import A.{given _} // imports only the given instances of A
 
-object C
-  import A.{given, _} // import givens and non-givens with a single import
+object C:
+  import A.{given _, _} // import givens and non-givens with a single import
 
-object D
+object D:
   import A.{given A.TC} // importing by type

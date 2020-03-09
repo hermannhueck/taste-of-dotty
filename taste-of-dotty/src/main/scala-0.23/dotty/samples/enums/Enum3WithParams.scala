@@ -1,6 +1,6 @@
 package dotty.samples.enums
 
-enum Color3(val escape: String)
+enum Color3(val escape: String):
 
   case Red extends Color3(Console.RED)
   case Green extends Color3(Console.GREEN)

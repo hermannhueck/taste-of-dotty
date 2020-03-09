@@ -1,24 +1,23 @@
 package dotty.samples
 
-object Geometry {
+object Geometry:
 
   opaque type Length = Double
   opaque type Area = Double
 
-  object Length {
+  object Length:
     def apply(d: Double): Length = d
-  }
-  object Area {
-    def apply(d: Double): Area = d
-  }
 
-  extension on (length: Length)
+  object Area:
+    def apply(d: Double): Area = d
+
+  extension on (length: Length):
     def double: Double = length
 
-  extension on (area: Area)
+  extension on (area: Area):
     def double: Double = area
 
-  enum Shape {
+  enum Shape:
 
     case Circle(radius: Length)
     case Rectangle(width: Length, height: Length)
@@ -30,8 +29,7 @@ object Geometry {
     def circumference: Length = this match
       case Circle(r) => 2 * math.Pi * r
       case Rectangle(w, h) => 2 * w + 2 * h
-  }
-}
+
 
 import scala.util.chaining._
 import scala.language.implicitConversions
@@ -40,7 +38,7 @@ import util._
 import Geometry._
 import Geometry.Shape._
 
-@main def Shapes: Unit =
+@main def OpaqueTypeAliases1: Unit =
 
   printStartLine()
 
@@ -55,7 +53,5 @@ import Geometry.Shape._
   val cCircumference: Length = circle.circumference
   val cCircumferenceDouble: Double = cCircumference.double
   f"circle circumference: $cCircumferenceDouble%.3f" pipe println
-
-  printEndLine()
 
   printEndLine()

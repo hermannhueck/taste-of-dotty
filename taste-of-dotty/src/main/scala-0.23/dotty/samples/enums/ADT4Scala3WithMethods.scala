@@ -1,6 +1,6 @@
 package dotty.samples.enums
 
-enum Tree4[+T]
+enum Tree4[+T]:
   case Leaf4(elem: T)
   case Node4(left: Tree4[T], right: Tree4[T])
   def count: Int = this match
