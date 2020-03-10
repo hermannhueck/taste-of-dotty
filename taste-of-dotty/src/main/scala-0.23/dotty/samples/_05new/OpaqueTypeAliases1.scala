@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._05new
 
 object Geometry:
 
@@ -40,7 +40,7 @@ import Geometry.Shape._
 
 @main def OpaqueTypeAliases1: Unit =
 
-  printStartLine()
+  line().green pipe println
 
   val circle = Circle(Length(1.0))
 
@@ -54,4 +54,4 @@ import Geometry.Shape._
   val cCircumferenceDouble: Double = cCircumference.double
   f"circle circumference: $cCircumferenceDouble%.3f" pipe println
 
-  printEndLine()
+  line().green pipe println

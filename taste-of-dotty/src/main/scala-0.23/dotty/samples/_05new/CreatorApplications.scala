@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._05new
 
 val sb =
   StringBuilder("The keyword 'new'")
@@ -13,7 +13,7 @@ import scala.util.chaining._
 import scala.language.implicitConversions
 import util._
 
-@main def ConstructorsWithoutNew =
-  printStartLine()
+@main def CreatorApplications =
+  line().green pipe println
   println(s.red)
-  printEndLine()
+  line().green pipe println

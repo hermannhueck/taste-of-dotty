@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._05new
 
 object NewControlSyntax {
 

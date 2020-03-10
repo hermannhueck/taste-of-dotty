@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._05new
 
 // Opaque types aliases provide type abstraction without any overhead.
 
@@ -37,7 +37,7 @@ import Predef.{any2stringadd => _, _}
 
 @main def OpaqueTypeAliases2: Unit =
 
-  printStartLine()
+  line().green pipe println
 
   val l = Logarithm(1.0) tap println
   val l2 = Logarithm(2.0) tap println
@@ -50,7 +50,7 @@ import Predef.{any2stringadd => _, _}
   // l * 2                   // error: found: Int(2), required: Logarithm
   // l / l2                  // error: `/` is not a member for Logarithm
 
-  printEndLine()
+  line().green pipe println
 
 // Aside: the any2stringadd => _ import suppression is necessary since otherwise the universal + operation
 // in Predef would take precedence over the + extension method in logarithmOps.

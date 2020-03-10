@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._05new
 
 class A:
   def a1 = 42
@@ -14,7 +14,7 @@ class B:
   import scala.language.implicitConversions
   import util._
 
-  printStartLine()
+  line().green pipe println
 
   val b = new B
 
@@ -23,4 +23,4 @@ class B:
   val bString = b.aString ensuring (_ == 42.toString)
   bString pipe println
 
-  printEndLine()
+  line().green pipe println
