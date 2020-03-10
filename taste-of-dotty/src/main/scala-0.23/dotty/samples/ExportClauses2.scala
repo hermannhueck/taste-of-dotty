@@ -1,4 +1,3 @@
-
 package dotty.samples
 
 class A:

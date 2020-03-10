@@ -1,4 +1,4 @@
-package dotty.samples.context.joiner
+package dotty.samples._03context.joiner
 
 // Joiner in fact is Monoid.
 

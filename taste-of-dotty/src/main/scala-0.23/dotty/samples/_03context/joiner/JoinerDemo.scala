@@ -6,7 +6,7 @@ import scala.language.implicitConversions
 
 import Joiner._
 
-object JoinerDemo extends App {
+@main def JoinerDemo: Unit =
 
   line().green pipe println
 
@@ -21,4 +21,3 @@ object JoinerDemo extends App {
   s"all ints joined: $allIntsJoined" pipe println
   
   line().green pipe println
-}

@@ -1,4 +1,4 @@
-package dotty.samples.context
+package dotty.samples._03context
 
 import scala.concurrent.{Future, Await, ExecutionContext}
 import scala.concurrent.duration._
