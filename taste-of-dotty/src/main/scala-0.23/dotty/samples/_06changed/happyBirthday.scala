@@ -1,4 +1,4 @@
-package dotty.samples
+package dotty.samples._06changed
 
 @main def happyBirthday(age: Int, name: String, others: String*): Unit =
 
