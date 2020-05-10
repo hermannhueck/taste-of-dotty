@@ -34,6 +34,8 @@ object BigFloat {
           (mantissaDigits, expo)
         case Array(mantissaDigits) =>
           (mantissaDigits, 0)
+        case _ =>
+          throw new IllegalArgumentException("not a valid floating point number")
 
     val (intPart, exponent) =
       mantissaDigits.toString.split('.') match

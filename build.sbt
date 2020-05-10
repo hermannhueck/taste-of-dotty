@@ -15,6 +15,12 @@ inThisBuild(
     version := projectVersion,
     scalaVersion := dottyVersion,
     crossScalaVersions := Seq(dottyVersion, scala2xVersion),
+    publish / skip := true,
+    initialCommands :=
+      s"""|
+          |import scala.util.chaining._
+          |println
+          |""".stripMargin // initialize REPL
   )
 )
 
@@ -23,7 +29,7 @@ lazy val root = project
   .aggregate(`taste-of-dotty`)
   .settings(
     name := "root",
-    publish / skip := true
+    sourceDirectories := Seq.empty
   )
 
 lazy val `taste-of-dotty` = project
