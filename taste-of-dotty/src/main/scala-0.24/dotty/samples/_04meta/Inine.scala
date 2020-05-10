@@ -1,6 +1,6 @@
 package samples._04meta
 
-object Inline2 {
+object Inline {
 
   // Inline Definitions
 
@@ -61,9 +61,11 @@ object Inline2 {
   class B extends A:
     def meth() = true
   
-  inline def choose(b: Boolean) <: A =
-    if b then new A()
-    else new B()
+  transparent inline def choose(b: Boolean): A =
+    if b
+     A()
+    else
+      B()
   
   val obj1 = choose(true)  // static type is A
   val obj2 = choose(false) // static type is B
@@ -71,7 +73,7 @@ object Inline2 {
   // obj1.meth() // compile-time error: `meth` is not defined on `A`
   obj2.meth()    // OK
 
-  inline def zero() <: Int = 0
+  transparent inline def zero(): Int = 0
 
   val one: 1 = zero() + 1
   
@@ -96,7 +98,7 @@ object Inline2 {
   // and the type of the result is taken. If not, a compile-time error is raised that reports
   // that the match cannot be reduced.
 
-  inline def g(x: Any) <: Any = inline x match
+  transparent inline def g(x: Any): Any = inline x match
     case x: String => (x, x) // Tuple2[String, String](x, x)
     case x: Double => x
   
@@ -107,7 +109,7 @@ object Inline2 {
   case object Zero extends Nat
   case class Succ[N <: Nat](n: N) extends Nat
   
-  inline def toInt(n: Nat) <: Int = inline n match
+  transparent inline def toInt(n: Nat): Int = inline n match
     case Zero => 0
     case Succ(n1) => toInt(n1) + 1
   
@@ -124,7 +126,7 @@ object Inline2 {
 
   import scala.compiletime.{constValue, S}
 
-  inline def toIntC[N] <: Int =
+  transparent inline def toIntC[N]: Int =
     inline constValue[N] match
       case 0 => 0
       case _: S[n1] => 1 + toIntC[n1]
@@ -146,7 +148,7 @@ object Inline2 {
 
   import scala.compiletime.erasedValue
 
-  inline def defaultValue[T] = inline erasedValue[T] match
+  transparent inline def defaultValue[T] = inline erasedValue[T] match
     case _: Byte => Some(0: Byte)
     case _: Char => Some(0: Char)
     case _: Short => Some(0: Short)
@@ -169,10 +171,10 @@ object Inline2 {
   // return the integer value corresponding to it. Consider the definitions of numbers as in the Inline Match section above.
   // Here is how toIntT can be defined:
 
-  inline def toIntT[N <: Nat] <: Int = inline scala.compiletime.erasedValue[N] match {
-    case _: Zero.type => 0
-    case _: Succ[n] => toIntT[n] + 1
-  }
+  transparent inline def toIntT[N <: Nat]: Int =
+    inline scala.compiletime.erasedValue[N] match
+      case _: Zero.type => 0
+      case _: Succ[n] => toIntT[n] + 1
   
   final val two = toIntT[Succ[Succ[Zero.type]]]
 
