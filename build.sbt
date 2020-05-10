@@ -7,7 +7,7 @@ val projectVersion = "0.1.0"
 
 val dottyVersion = "0.24.0-RC1"
 // val dottyVersion = dottyLatestNightlyBuild.get
-val scala2xVersion = "2.13.1"
+val scala2xVersion = "2.13.2"
 
 inThisBuild(
   Seq(
