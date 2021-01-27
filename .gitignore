@@ -6,19 +6,16 @@ target/
 .bloop/
 .metals/
 .vscode/
+.bsp/
 
 # files
 *.class
 *.log
 *.jar
 *.zip
+metals.sbt
 
 # hidden files
 .history
 .dotty-ide*
 .DS_Store
-
-project/metals.sbt
-.bloop/*
-.metals/*
-
