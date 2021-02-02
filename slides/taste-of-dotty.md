@@ -5,7 +5,7 @@ autoscale: true
 # A Taste of Dotty
 # <br/>
 
-#### copyright 2020 Hermann Hueck
+#### copyright 2021 Hermann Hueck
 ### https://github.com/hermannhueck/taste-of-dotty
 
 ---
@@ -126,8 +126,8 @@ The presentation also contains many links to specific chapters in the Dotty docs
 ### New _sbt_ Project
 <br/>
 
-- create new project: _sbt new lampepfl/dotty.g8_
-- (or: _sbt new lampepfl/dotty-cross.g8_ for a cross-build project)
+- create new project: _sbt new scala/scala3.g8_
+- (or: _sbt new scala/scala3-cross.g8_ for a cross-build project)
 - _cd_ to project directory
 - in the project directory: _sbt launchIDE_
   (starts VSCode with the current folder as workspace,
@@ -138,16 +138,14 @@ The presentation also contains many links to specific chapters in the Dotty docs
 ### build.sbt
 
 ```scala
-// val dottyVersion = "0.22.0-RC1"
-// use latest nightly build of dotty
-val dottyVersion = dottyLatestNightlyBuild.get
+val scala3Version = "3.0.0-M3"
 
 lazy val root = project
   .in(file("."))
   .settings(
-    name := "dotty-simple",
+    name := "scala3-simple",
     version := "0.1.0",
-    scalaVersion := dottyVersion,
+    scalaVersion := scala3Version,
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
   )
 ```
@@ -161,7 +159,7 @@ lazy val root = project
 
 ```scala
 // sbt-dotty plugin
-addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.0")
+addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.5.2")
 ```
 
 ---
@@ -173,8 +171,7 @@ addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.0")
 
 ```scala
 // change to latest sbt version
-// 1.3.8 in March 2020
-sbt.version=1.2.7
+sbt.version=1.4.7
 ```
 
 ---
@@ -305,9 +302,9 @@ end MyTrait // optional end marker
 
   if x < 0 then -x else x
 
-  if x < 0
+  if x < 0 then
     "negative"
-  else if x == 0
+  else if x == 0 then
     "zero"
   else
     "positive"
@@ -405,7 +402,7 @@ end MyTrait // optional end marker
 
 <a name="ref_constructors_without_new"/>
 
-# Constructor Invocations w/o _new_[^9]
+# Constructor Invocations without _new_[^9]
 
 [^9]: [https://dotty.epfl.ch/docs/reference/other-new-features/creator-applications.html](https://dotty.epfl.ch/docs/reference/other-new-features/creator-applications.html)
 
@@ -674,7 +671,7 @@ type ResetGrowable[T] =
 ---
 
 ```scala
-class MyClass(var x : Int = 0) extends Resettable with Growable[Int]:
+class MyClass(var x : Int = 0) extends Resettable, Growable[Int]:
   def reset() =
     x = 0
     this
@@ -751,7 +748,7 @@ val nameOrPw: UserName | Password =
 ### Implicits
 
 - Implicits are the fundamental way to abstract over context in Scala 2.
-- Hard to understand, error-prone, easily mis-used or overused, many rough edges.
+- Hard to understand, error-prone, easily misused or overused, many rough edges.
 - Implicits convey mechanism over intent.
 - One mechanism used for many different purposes:
   - implicit conversions
@@ -765,7 +762,7 @@ val nameOrPw: UserName | Password =
 ### The new Design in Scala 3 (1/2)
 
 - Focus on intent over mechanism
-- Implicit conversions are hard to mis-use.
+- Implicit conversions are hard to misuse.
 - Concise syntax for extension methods
 - New keyword _given_
 - _given_ instances focus on types instead of terms.
@@ -782,7 +779,7 @@ val nameOrPw: UserName | Password =
 - Implicit Function Types provide a way to abstract over given clauses.
 - Implicit By-Name Parameters are an essential tool to define recursive synthesized values without looping.
 - Multiversal Equality introduces a special typeclass to support type safe equality.
-- Scala 2 implicits remain available in parallel for a long time.
+- Scala 2 implicits remain available in parallel for a long time (backward compatibility).
 
 ---
 
@@ -850,9 +847,10 @@ Syntax can easily be mixed up with other implicit constructs.
 ### Extension Methods
 
 - Extension methods replace implicit classes of Scala 2.
-- They have a parameter clause in front of the defined identifier.
-- They translate to methods where the leading parameter section is moved to the front of the method name.
-- Type parameters are in front of the first parameter section.
+- They are defined using the new key word _extension_.
+- The _extension_ keyword is followed by a single parameter,
+- which is the object on which the extension method(s) is/are defined.
+- The extension clause is followed by one ore more method definitions.
 - They can be invoked two ways: _method(param)_  or _param.method_
 - This syntax also applies to operators.
 
@@ -865,7 +863,8 @@ Syntax can easily be mixed up with other implicit constructs.
 ```scala
 case class Circle(x: Double, y: Double, radius: Double)
 
-def (c: Circle).circumference: Double = c.radius * math.Pi * 2
+extension (c: Circle)
+   def circumference: Double = c.radius * math.Pi * 2
 
 val circle = Circle(0, 0, 1)
 
@@ -878,40 +877,19 @@ assert(cf1 == cf2)
 
 ---
 
-### Extension Instances
-
-- Several extension methods can be wrapped in one instance ...
-- ... using the key word __extension__.
-
-```scala
-extension ops: // the name 'ops' is arbitrary and optional
-
-  def (xs: Seq[String]).longestStrings: Seq[String] =
-    val maxLength = xs.map(_.length).max
-    xs.filter(_.length == maxLength)
-
-  def (xs: Seq[String]).longestString: String =
-    xs.longestStrings.head
-    
-  def [T](xs: List[T]).second: T =
-    xs.tail.head
-```
-
----
-
 ### Collective Extensions
 
 - Several extension methods that share the same left-hand parameter type
-- ... can be bundled with __extension on__
+- ... can be bundled with __extension__
 - ...  moving the common first parameter to the instance.
 <br/>
 
 ```scala
-extension listOps on [T](xs: List[T]): // the name 'listOps' is arbitrary and optional
+extension [T](xs: List[T])
   def second: T = xs.tail.head
   def third: T = xs.tail.second
 
-extension on [T](xs: List[T])(using Ordering[T]):
+extension [T](xs: List[T])(using Ordering[T]) // uses an additional implicit parameter
   def largest(n: Int) = xs.sorted.takeRight(n)
 ```
 
@@ -943,7 +921,7 @@ extension on [T](xs: List[T])(using Ordering[T]):
 import scala.concurrent.{Future, ExecutionContext}
 
 // implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
-given ec as ExecutionContext = ExecutionContext.global // variable ec can be omitted
+given ec: ExecutionContext = ExecutionContext.global // variable ec can be omitted
 
 def someComputation(): Int = ???
 val future: Future[Int] = Future { someComputation() }
@@ -986,15 +964,16 @@ future onComplete {
 // a type class
 trait Ord[T]:
   def compare(x: T, y: T): Int
-  def (x: T) < (y: T) = compare(x, y) < 0
-  def (x: T) > (y: T) = compare(x, y) > 0
+  extension (x: T)
+    def < (y: T) = compare(x, y) < 0
+    def > (y: T) = compare(x, y) > 0
 ```
 
 <br/>
 
 Typeclass instances to be defined as _given_'s ...
 
-[^19]: [https://dotty.epfl.ch/docs/reference/contextual/delegates.html](https://dotty.epfl.ch/docs/reference/contextual/delegates.html)
+[^19]: [https://dotty.epfl.ch/docs/reference/contextual/givens.html](https://dotty.epfl.ch/docs/reference/contextual/givens.html)
 
 ---
 
@@ -1005,6 +984,8 @@ Typeclass instances to be defined as _given_'s ...
 - They replace _implicit val_'s, _def_'s and _object_'s.
 - They can be defined with only a type omitting a name/symbol.
 - Symbols - if omitted - are synthesized by the compiler.
+- The _given_ clause ends with the key word _with_
+- followed by a set of method defs implementing the trait (_Ord_ in this case).
 
 <br/>
 
@@ -1014,10 +995,10 @@ Typeclass instances to be defined as _given_'s ...
 
 ```scala
 // instances with symbols
-given intOrd as Ord[Int]:
+given intOrd: Ord[Int] with
   def compare(x: Int, y: Int) = ???
 
-given listOrd[T] (using ord: Ord[T]) as Ord[List[T]]:
+given listOrd[T](using ord: Ord[T]): Ord[List[T]] with
   def compare(xs: List[T], ys: List[T]): Int = ???
 
 ```
@@ -1026,10 +1007,10 @@ given listOrd[T] (using ord: Ord[T]) as Ord[List[T]]:
 
 ```scala
 // instances without symbols
-given Ord[Int]:
+given Ord[Int] with
   def compare(x: Int, y: Int) = ???
 
-given [T] (using Ord[T]) as Ord[List[T]]:
+given [T](using Ord[T]): Ord[List[T]] with
   def compare(xs: List[T], ys: List[T]): Int = ???
 ```
 
@@ -1132,18 +1113,19 @@ def maximum[T: Ord](xs: List[T]): T =
 ```scala
 object A:
   class TC
-  given tc as TC
+  given tc: TC = ???
   def f(given TC) = ???
 
 object B:
   import A._ // imports all members of A except the given instances
-  import A.{given _} // imports only the given instances of A
+  import A.given // imports only the given instances of A
 
 object C:
-  import A.{given _, _} // import givens and non-givens with a single import
+  import A.{given, _} // import givens and non-givens with a single import
 
 object D:
-  import A.{given A.TC} // importing by type
+  import A.TC
+  import A.{given TC} // importing by type
 ```
 
 [^22]: [https://dotty.epfl.ch/docs/reference/contextual/given-imports.html](https://dotty.epfl.ch/docs/reference/contextual/given-imports.html)
@@ -1217,25 +1199,26 @@ given eitherMonad[L]: Monad[Either[L, *]] { ... }
 # Typeclasses[^26]
 ## (Monad Example)
 
-[^26]: [https://dotty.epfl.ch/docs/reference/contextual/typeclasses.html](https://dotty.epfl.ch/docs/reference/contextual/typeclasses.html)
+[^26]: [https://dotty.epfl.ch/docs/reference/contextual/type-classes.html](https://dotty.epfl.ch/docs/reference/contextual/type-classes.html)
 
 ---
 
 ### Typeclasses: Monad Trait
 
 ```scala
-trait Functor[F[?]]: // use _ or ? for wildcard type
-  def [A, B](x: F[A]) map (f: A => B): F[B]
+trait Functor[F[?]]:
+  extension [A, B](x: F[A])
+    def map (f: A => B): F[B]
 
-trait Monad[F[?]] extends Functor[F]:    // use _ or ? for wildcard type
-
+trait Monad[F[?]] extends Functor[F]:
   def pure[A](a: A): F[A]
-  def [A, B](fa: F[A]) flatMap (f: A => F[B]): F[B]
+  extension [A, B](fa: F[A])
+    def flatMap (f: A => F[B]): F[B]
 
-  override def [A, B] (fa: F[A]) map (f: A => B): F[B] =
-    flatMap(fa)(f andThen pure)
-  def [A](fa: F[F[A]]) flatten: F[A] =
-    flatMap(fa)(identity)
+  extension [A, B] (fa: F[A])
+    override def map (f: A => B): F[B] = flatMap(fa)(f andThen pure)
+  extension [A](fa: F[F[A]])
+    def flatten: F[A] = flatMap(fa)(identity)
 ```
 
 ---
@@ -1255,18 +1238,23 @@ trait Monad[F[?]] extends Functor[F]:    // use _ or ? for wildcard type
 ```scala
 object Monad:
 
-  given Monad[List]:
+  given Monad[List] with
     override def pure[A](a: A): List[A] = List(a)
-    override def [A, B](list: List[A]) flatMap (f: A => List[B]): List[B] = list flatMap f
+    extension [A, B](fa: List[A])
+      override def flatMap(f: A => List[B]): List[B] =
+        fa flatMap f
 
-  given Monad[Option]:
+  given Monad[Option] with
     override def pure[A](a: A): Option[A] = Some(a)
-    override def [A, B](option: Option[A]) flatMap (f: A => Option[B]): Option[B] = option flatMap f
+    extension[A, B](fa: Option[A])
+      override def flatMap(f: A => Option[B]): Option[B] =
+        fa flatMap f
   
-  // given [L] as Monad[[R] =>> Either[L, R]]:
-  given [L] as Monad[Either[L, *]]: // requires -Ykind-projector
-    def pure[A](a: A): Either[L, A] = Right(a)
-    def [A, B](either: Either[L, A]) flatMap (f: A => Either[L, B]): Either[L, B] = either flatMap f
+  given[L]: Monad[Either[L, *]] with // requires -Ykind-projector
+    override def pure[A](a: A): Either[L, A] = Right(a)
+    extension [A, B](fa: Either[L, A])
+      override def flatMap(f: A => Either[L, B]): Either[L, B] =
+        fa flatMap f
 ```
 
 ---
@@ -1321,14 +1309,20 @@ object Geometry:
   opaque type Length = Double
   opaque type Area = Double
 
-  object Length { def apply(d: Double): Length = d }
-  object Area { def apply(d: Double): Area = d }
+  object Length:
+    def apply(d: Double): Length = d
+    extension (length: Length)
+      def double: Double = length
 
-  extension on (length: Length):
-    def double: Double = length
-  extension on (area: Area):
-    def double: Double = area
+  object Area:
+    def apply(d: Double): Area = d
+    extension (area: Area)
+      def double: Double = area
+```
 
+---
+
+```scala
   enum Shape:
     case Circle(radius: Length)
     case Rectangle(width: Length, height: Length)
@@ -1401,7 +1395,7 @@ val cCircumferenceDouble: Double = cCircumference.double
 ```scala
 type Executable[T] = ExecutionContext ?=> T
 
-given ec as ExecutionContext = ExecutionContext.global
+given ec: ExecutionContext = ExecutionContext.global
 
 def f(x: Int): Executable[Int] = {
   val result: AtomicInteger = AtomicInteger(0)
@@ -1490,8 +1484,8 @@ assert(stringKey1 == stringKey2)
 - Tuples and HList express the same semantic concept.
 - Scala 3 provides Tuple syntax (like Scala 2) and HList syntax to express this concept.
 - Both are completely equivalent.
-- In Scala 2 the number of Tuple members is limited to 22, in Scala 3 it is unlimited.
-- This is beneficial for _shapeless3_ (must no longer convert between tuples and HLists).
+- In Scala 2 Tuple members are limited to 22, in Scala 3 unlimited.
+- _shapeless3_ must no longer convert between Tuples and HLists.
 
 ---
 
@@ -1502,12 +1496,12 @@ assert(stringKey1 == stringKey2)
 val isb1: (Int, String, Boolean) = (42, "foo", true)
 
 // Scala 3: HList syntax
-val isb2: Int *: String *: Boolean *: Unit = 42 *: "foo" *: true *: ()
+val isb2: Int *: String *: Boolean *: EmptyTuple = 42 *: "foo" *: true *: EmptyTuple
 
 // HList in Scala 2 with 'shapeless'
 // val isb3: Int :: String :: Boolean :: HNil = 42 :: "foo" :: true :: HNil
 
-summon[(Int, String, Boolean) =:= Int *: String *: Boolean *: Unit] // identical types
+summon[(Int, String, Boolean) =:= Int *: String *: Boolean *: EmptyTuple] // identical types
 
 assert(isb1 == isb2) // identical values
 ```
@@ -1567,7 +1561,7 @@ type LeafElem[X] = X match
 
 ```scala
 type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
-  case Unit => Ys
+  case EmptyTuple => Ys
   case x *: xs => x *: Concat[xs, Ys]
 ```
 
@@ -1697,8 +1691,8 @@ val str: String = strOrNull.nn
 ### Java Interop
 
 - Java reference types (loaded from source or from byte code) are always nullable.
-- E.g. a Java value or method returning _String_ is patched to return _String|JavaNull_.
-- _JavaNull_ is an alias for _Null_ with 'magic properties' (see [documentation](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)).
+- E.g. a Java value or method returning _String_ is patched to return _String|UncheckedNull_.
+- _UncheckedNull_ is an alias for _Null_ with 'magic properties' (see [documentation](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)).
 
 ---
 
@@ -1768,7 +1762,7 @@ power(expr, 10)
 
 ### _inline_ Conditionals
 
-- If the condition of an if-then-else expressions is a constant expression then it simplifies to the selected branch.
+- If the condition of an if-then-else expression is a constant expression then it simplifies to the selected branch.
 - When prefixing an if-then-else expression with inline the condition has to be a constant expression.
 - This guarantees that the conditional will always simplify.
 
@@ -1785,7 +1779,7 @@ If _update_ was not called with a constant, this code snippet doesn't compile.
 
 ### Inline Matches
 
-- A match expression in the body of an inline method definition may also be prefixed by the inline modifier.
+- A match expression in the body of an inline method def may be prefixed by the inline modifier.
 - If there is enough static information to unambiguously take a branch, the expression is reduced to that branch.
 - Otherwise a compile-time error is raised that reports that the match cannot be reduced.
 
@@ -1834,7 +1828,7 @@ Foo() == Option(Foo()) // false - but should not compile
 - Scala 3 gives you strict equality as an opt-in feature.
 - Import _scala.language.strictEquality_ or add _-language:strictEquality_ to scalacOptions.
 - Enabling this feature prevents successful compilation for all comparisons ...
-- ... with some exceptions. You can still compare numbers.
+- ... with some exceptions: you can still compare numbers.
   
 <br/>
 
@@ -1849,13 +1843,13 @@ Foo() == Option(Foo()) // does not compile
 
 ### Multiversial or Strict Equality (2/6)
 
-- For the types you want to compare you have to provide an _Eql_ instance.
+- For the types you want to compare you have to provide an _CanEqual_ instance.
   
 <br/>
 <br/>
 
 ```scala
-given Eql[Foo, Foo] = Eql.derived
+given CanEqual[Foo, Foo] = CanEqual.derived
 
 Foo() == Foo()         // compiles; result: true
 Foo() == Option(Foo()) // does not compile, as we want
@@ -1870,9 +1864,9 @@ Foo() == Option(Foo()) // does not compile, as we want
 <br/>
 
 ```scala
-final case class Bar() derives Eql
+final case class Bar() derives CanEqual
 // this is equivalent to
-// given Eql[Bar, Bar] = Eql.derived
+// given CanEqual[Bar, Bar] = CanEqual.derived
 
 Bar() == Bar()            // true
 Bar() == Option(Bar())    // does not compile
@@ -1887,13 +1881,13 @@ Bar() == Foo()            // does not compile
 ### Multiversial or Strict Equality (4/6)
 
 - If you want to compare _Foo_'s with _Bar_'s ...
-- provide two _Eql_ instances which allow the comparison.
+- provide two _CanEqual_ instances which allow the comparison.
   
 <br/>
 
 ```scala
-given Eql[Foo, Bar] = Eql.derived
-given Eql[Bar, Foo] = Eql.derived
+given CanEqual[Foo, Bar] = CanEqual.derived
+given CanEqual[Bar, Foo] = CanEqual.derived
 
 Foo() == Bar()          // compiles; result is false
 Bar() == Foo()          // compiles; result is false
@@ -1903,7 +1897,7 @@ Bar() == Foo()          // compiles; result is false
 
 ### Multiversial or Strict Equality (5/6)
 
-- The Scala standard library provides bidirectional Eql instances for several types:
+- The Scala standard library provides bidirectional CanEqual instances for several types:
 - Numeric types can be compared with each other and with _java.lang.Number_.
 - _Boolean_ can be compared to _Boolean_ and to _java.lang.Boolean_.
 - _Char_ can be compared to _Char_ and to _java.lang.Character_.
@@ -1966,8 +1960,9 @@ import scala.deriving._
 
 trait Eq[T]:    // type class 'Eq'
   def eqv(x: T, y: T): Boolean
-  def (x: T) === (y: T): Boolean = eqv(x, y)
-  def (x: T) !== (y: T): Boolean = !eqv(x, y)
+  extension (x: T)
+    def === (y: T): Boolean = eqv(x, y)
+    def !== (y: T): Boolean = !eqv(x, y)
 
 
 object Eq:    // type class 'Eq' companion
@@ -2023,7 +2018,7 @@ assert(Node(Leaf(1), Node(Leaf(2), Leaf(3))) !== Node(Leaf(2), Leaf(3)))
 
 # Given By-Name Parameters[^37]
 
-[^37]: [https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html](https://dotty.epfl.ch/docs/reference/contextual/implicit-by-name-parameters.html)
+[^37]: [https://dotty.epfl.ch/docs/reference/contextual/by-name-context-parameters.html](https://dotty.epfl.ch/docs/reference/contextual/by-name-context-parameters.html)
 
 ---
 
@@ -2044,7 +2039,7 @@ trait Codec[T]:
 given intCodec: Codec[Int]:
   def write(x: Int): Unit = println(s"x = $x")
 
-given optionCodec[T](using ev: => Codec[T]) as Codec[Option[T]]: // given param ev is evaluated lazily
+given optionCodec[T](using ev: => Codec[T]): Codec[Option[T]] with // given param ev is evaluated lazily
   def write(xo: Option[T]) = xo match
     case Some(x) => ev.write(x)     // evaluation of ev occurs only in the Some(x) case.
     case None =>                    // no evaluation in the None case
@@ -2058,13 +2053,13 @@ s.write(None)
 
 <a name="ref_implicit_resolution"/>
 
-# Implicit Resolution[^38]
+# Improved Implicit Resolution[^38]
 
 [^38]: [https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/implicit-resolution.html)
 
 ---
 
-### Implicit Resolution
+### Improved Implicit Resolution
 
 - New algorithm which caches implicit results more aggressively for performance.
 - Types of implicit values and result types of implicit methods must be explicitly declared.
@@ -2076,7 +2071,7 @@ s.write(None)
 
 <a name="ref_overload_resolution"/>
 
-# Overload Resolution[^39]
+# Improved Overload Resolution[^39]
 
 [^39]: [https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html](https://dotty.epfl.ch/docs/reference/changed-features/overload-resolution.html)
 
@@ -2111,10 +2106,15 @@ g(2)(3)("")    // ok // but ambiguous overload error in Scala 2
 <br/>
 
 ```scala
-def h(x: Int, h: Int => Int) = h(x)
-def h(x: String, h: String => String) = h(x)
+def f(x: Int)(y: String): Int = 0
+def f(x: Int)(y: Int): Int = 0
+
+def h(x: Int, h: Int => Int) = f(x)
+def h(x: String, h: String => String) = f(x)
+
 h(40, _ + 2)             // ok // but missing parameter type error in Scala 2
-h("a", _.toUpperCase)    // ok // but missing parameter type error in Scala 2
+h("a", _.toUpperCase)    // ok without -explicit-nulls // but missing parameter type error in Scala 2
+h("a", _.toUpperCase.nn) // .nn needed with -explicit-nulls
 ```
 
 <br/>
@@ -2159,15 +2159,15 @@ val sums3 = tuples map { _ + _ }
 
 ### Dropped Scala 2 Features
 
-- [Dropped Limit 22 for Tuples and Functions](https://dotty.epfl.ch/docs/reference/dropped-features/limit22.html)
-- [Dropped Procedure Syntax](https://dotty.epfl.ch/docs/reference/dropped-features/procedure-syntax.html)
-- [Dropped Symbol Literals](https://dotty.epfl.ch/docs/reference/dropped-features/symlits.html)
-- [Dropped DelayedInit](https://dotty.epfl.ch/docs/reference/dropped-features/delayed-init.html)
-- [Dropped Auto-Application](https://dotty.epfl.ch/docs/reference/dropped-features/auto-apply.html)
-- [Dropped Early Initializers](https://dotty.epfl.ch/docs/reference/dropped-features/early-initializers.html)
-- [Dropped Existential Types](https://dotty.epfl.ch/docs/reference/dropped-features/existential-types.html)
-- [Dropped Type Projection](https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html)
-- [Dropped Scala 2 Macros](https://dotty.epfl.ch/docs/reference/dropped-features/macros.html)
+- [Dropped: Limit 22 for Tuples and Functions](https://dotty.epfl.ch/docs/reference/dropped-features/limit22.html)
+- [Dropped: Procedure Syntax](https://dotty.epfl.ch/docs/reference/dropped-features/procedure-syntax.html)
+- [Dropped: Symbol Literals](https://dotty.epfl.ch/docs/reference/dropped-features/symlits.html)
+- [Dropped: DelayedInit](https://dotty.epfl.ch/docs/reference/dropped-features/delayed-init.html)
+- [Dropped: Auto-Application](https://dotty.epfl.ch/docs/reference/dropped-features/auto-apply.html)
+- [Dropped: Early Initializers](https://dotty.epfl.ch/docs/reference/dropped-features/early-initializers.html)
+- [Dropped: Existential Types](https://dotty.epfl.ch/docs/reference/dropped-features/existential-types.html)
+- [Dropped: General Type Projection](https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html)
+- [Dropped: Scala 2 Macros](https://dotty.epfl.ch/docs/reference/dropped-features/macros.html)
 - and more ...
 
 ---
@@ -2196,15 +2196,11 @@ val sums3 = tuples map { _ + _ }
   [https://github.com/hermannhueck/taste-of-dotty](https://github.com/hermannhueck/taste-of-dotty)
 - Dotty Documention
   [https://dotty.epfl.ch/docs/](https://dotty.epfl.ch/docs/)
-- Scala 2 Roadmap Update: the Road to Scala 3
-  [https://www.scala-lang.org/2019/12/18/road-to-scala-3.html](https://www.scala-lang.org/2019/12/18/road-to-scala-3.html)
 
 ---
 
 ## Talks
 
-- Martin Odersky (Lightbend Webinar): Scala 3 is Coming (published July 2019)
-  [https://www.youtube.com/watch?v=U2tjcwSag_0](https://www.youtube.com/watch?v=U2tjcwSag_0)
 - Martin Odersky at ScalaSphere Krakow: Revisiting Implicits (published October 2019)
   [https://www.youtube.com/watch?v=h4dS5WRGJtE](https://www.youtube.com/watch?v=h4dS5WRGJtE)
 - Nicolas Stucki at ScalaDays Lausanne: Metaprogramming in Dotty (published July 2019)
