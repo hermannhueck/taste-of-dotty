@@ -29,7 +29,6 @@ object Logarithms:
 // because they use functionality implemented in the Logarithm object.
 
 import scala.util.chaining._
-import scala.language.implicitConversions
 import util._
 
 import Logarithms._

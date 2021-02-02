@@ -13,7 +13,6 @@ def help(id: UserName | Password): String =
 
 import util._
 import scala.util.chaining._
-import scala.language.implicitConversions
 
 @main def testUnion: Unit =
 

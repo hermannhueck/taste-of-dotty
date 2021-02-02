@@ -18,8 +18,7 @@ object MultiversialEquality {
 
 
   import scala.util.chaining._
-  import scala.language.implicitConversions
-  import util._
+    import util._
 
   @main def EqualityCheck: Unit =
 

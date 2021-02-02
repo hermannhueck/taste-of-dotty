@@ -10,14 +10,14 @@ object OverloadResolution {
 
   def f(x: Int)(y: String): Int = 0
   def f(x: Int)(y: Int): Int = 0
-  
-  f(3)("")     // ok
+
+  f(3)("") // ok
 
   def g(x: Int)(y: Int)(z: Int): Int = 0
   def g(x: Int)(y: Int)(z: String): Int = 0
-  
-  g(2)(3)(4)     // ok
-  g(2)(3)("")    // ok
+
+  g(2)(3)(4) // ok
+  g(2)(3)("") // ok
 
   // Parameter Types of Function Values
 
@@ -31,6 +31,5 @@ object OverloadResolution {
   // f("a", _.length)
   // f("a", x => x * x)
   h(40, _ + 2)
-  // h("a", _.toUpperCase) // error: Found: String | UncheckedNull, required: String
+  h("a", _.toUpperCase.nn) // .nn needed with -explicit-nulls
 }
-

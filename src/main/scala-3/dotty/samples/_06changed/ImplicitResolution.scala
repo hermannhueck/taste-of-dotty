@@ -12,15 +12,15 @@ object ImplicitResolution {
 
   class C {
 
-    val ctx: Context = ???        // ok
+    val ctx: Context = ??? // ok
 
     // implicit val x = ???    // error: type must be given explicitly
 
     // implicit def y = ???    // error: type must be given explicitly
 
     val y = {
-        implicit val ctx = this.ctx // ok
-        ???
+      implicit val ctx = this.ctx // ok
+      ???
     }
   }
 
@@ -32,24 +32,24 @@ object ImplicitResolution {
     }
   }
 
-  // 3. Package prefixes no longer contribute to the implicit scope of a type. Example: 
+  // 3. Package prefixes no longer contribute to the implicit scope of a type. Example:
 
   /*
   package p
   given a : A
-  
+
   object o {
     given b : B
     type C
   }
-  */
+   */
 
   // Both a and b are visible as implicits at the point of the definition of type C.
   // However, a reference to p.o.C outside of package p will have only b in its implicit scope but not a.
 
   // 4. The treatment of ambiguity errors has changed. If an ambiguity is encountered in some recursive step
   // of an implicit search, the ambiguity is propagated to the caller.
-  // Example: Say you have the following definitions: 
+  // Example: Say you have the following definitions:
 
   class A
   class B extends C
@@ -59,7 +59,7 @@ object ImplicitResolution {
   implicit def a2: A = ???
   implicit def b(implicit a: A): B = ???
   implicit def c: C2 = ???
-  
+
   // and the query
   // implicitly[C]
 
@@ -75,7 +75,7 @@ object ImplicitResolution {
 
   // 6. Scala-2 gives a lower level of priority to implicit conversions with call-by-name parameters
   // relative to implicit conversions with call-by-value parameters. Dotty drops this distinction.
-  // So the following code snippet would be ambiguous in Dotty: 
+  // So the following code snippet would be ambiguous in Dotty:
 
   import scala.language.implicitConversions
 
@@ -85,11 +85,10 @@ object ImplicitResolution {
   implicit def conv2(x: => Int): A2 = new A2(x) {}
   def buzz(y: A2) = ???
   // buzz(1)   // error: ambiguous
-  
+
   // 7. The rule for picking a most specific alternative among a set of overloaded or implicit alternatives
   // is refined to take inferable parameters into account. All else being equal, an alternative
   // that takes some implicit parameters is taken to be less specific than an alternative that takes none.
   // If both alternatives take implicit parameters, we try to choose between them as if they were
   // methods with regular parameters.
 }
-

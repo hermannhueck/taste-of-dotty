@@ -18,8 +18,7 @@ val stringEntry = new Entry { type Key = String; val key = "foo" }
 
   import util._
   import scala.util.chaining._
-  import scala.language.implicitConversions
-
+  
   printStartLine()
 
   val intKey1 = extractKey(intEntry) tap println

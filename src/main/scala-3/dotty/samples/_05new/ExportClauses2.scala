@@ -11,7 +11,6 @@ class B:
 @main def ExportClauses2: Unit =
 
   import scala.util.chaining._
-  import scala.language.implicitConversions
   import util._
 
   line().green pipe println

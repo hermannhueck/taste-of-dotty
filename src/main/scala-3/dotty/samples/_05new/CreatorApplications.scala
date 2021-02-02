@@ -10,7 +10,6 @@ val s =
   sb.toString
 
 import scala.util.chaining._
-import scala.language.implicitConversions
 import util._
 
 @main def CreatorApplications =

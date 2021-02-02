@@ -9,7 +9,7 @@ trait Growable[T]:
 type ResetGrowable[T] =
   Resettable & Growable[T]
 
-class MyClass(var x : Int = 0) extends Resettable with Growable[Int]:
+class MyClass(var x : Int = 0) extends Resettable, Growable[Int]:
   def reset() =
     x = 0
     this
@@ -23,7 +23,6 @@ def f(x: ResetGrowable[Int]) =
 
 import util._
 import scala.util.chaining._
-import scala.language.implicitConversions
 
 @main def testIntersect: Unit =
   printLine()

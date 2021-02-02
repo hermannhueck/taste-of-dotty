@@ -4,7 +4,8 @@ extension (ss: Seq[String])
   def longestStrings: Seq[String] =
       val maxLength = ss.map(_.length).max
       ss.filter(_.length == maxLength)
-  def longestString: String = longestStrings.head
+  def longestString: String =
+    longestStrings.head
 
 extension [T](xs: List[T])
   def second: T = xs.tail.head

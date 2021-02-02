@@ -4,7 +4,6 @@ import scala.concurrent.{Future, Await, ExecutionContext}
 import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
 
-import scala.language.implicitConversions
 import scala.util.chaining._
 import util._
 

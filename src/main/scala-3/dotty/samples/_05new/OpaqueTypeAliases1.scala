@@ -30,7 +30,6 @@ object Geometry:
 
 
 import scala.util.chaining._
-import scala.language.implicitConversions
 import util._
 
 import Geometry._

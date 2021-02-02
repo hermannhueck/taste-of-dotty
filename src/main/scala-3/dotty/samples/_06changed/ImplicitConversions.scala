@@ -15,27 +15,26 @@ object ImplicitConversions {
   // The second example shows how to use Conversion to define an Ordering for an arbitrary type,
   // given existing Orderings for other types:
 
-  implicit def ordT[T, S](
-      implicit
+  implicit def ordT[T, S](implicit
       conv: Conversion[T, S],
       ordS: Ordering[S]
-    ): Ordering[T] = {
+  ): Ordering[T] = {
     // `ordS` compares values of type `S`, but we can convert from `T` to `S`
     ??? // (x: T, y: T) => ordS.compare(x, y)
   }
-  
+
   class A(val x: Int) // The type for which we want an `Ordering`
-  
+
   // Convert `A` to a type for which an `Ordering` is available:
   implicit val AToInt: Conversion[A, Int] = _.x
-  
+
   implicitly[Ordering[Int]] // Ok, exists in the standard library
   implicitly[Ordering[A]] // Ok, will use the implicit conversion from
-                          // `A` to `Int` and the `Ordering` for `Int`.
+  // `A` to `Int` and the `Ordering` for `Int`.
 
   // In Scala 2, implicit values of a function type would be considered as potential views.
   // In Scala 3, these implicit value need to have type Conversion:
-    
+
   // Scala 2:
   def foo2(x: Int)(implicit conv: Int => String): String = x
 
@@ -59,9 +58,7 @@ object ImplicitConversions {
 
   implicit val m: Map[Int, String] = Map(1 -> "abc")
 
-  val x: String = 1  // scalac: assigns "abc" to x
-                     // Dotty: type error
-  
-  
-}
+  val x: String = 1 // scalac: assigns "abc" to x
+  // Dotty: type error
 
+}
