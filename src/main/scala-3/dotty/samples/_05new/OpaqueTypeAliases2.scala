@@ -28,11 +28,11 @@ object Logarithms:
 // Outside its scope, Logarithm is treated as a new abstract type. So the following operations would be valid
 // because they use functionality implemented in the Logarithm object.
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
-import Logarithms._
-import Predef.{any2stringadd => _, _}
+import Logarithms.*
+import Predef.{any2stringadd as _, *}
 
 @main def OpaqueTypeAliases2: Unit =
 

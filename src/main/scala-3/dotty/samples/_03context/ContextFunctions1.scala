@@ -29,7 +29,7 @@ def g(exec: Executable[Int]) =
 
 @main def ContextFunctions1(): Unit =
   
-  import util._
+  import util.*
   
   printStartLine()
 

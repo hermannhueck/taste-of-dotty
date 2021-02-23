@@ -27,4 +27,4 @@ object Joiner:
 
   extension [A: Joiner](as: List[A])
     inline def joinAll: A =
-      Joiner[A].joinAll(as: _*)
+      Joiner[A].joinAll(as *)

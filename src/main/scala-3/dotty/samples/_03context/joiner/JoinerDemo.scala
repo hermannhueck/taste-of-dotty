@@ -1,7 +1,7 @@
 package dotty.samples._03context.joiner
 
-import util._
-import scala.util.chaining._
+import util.*
+import scala.util.chaining.*
 
 import Joiner.{joinAll, given}
 
@@ -16,7 +16,7 @@ import Joiner.{joinAll, given}
   val liJoined = li1 join li2
   s"$li1 join $li2 = $liJoined" pipe println
 
-  val allIntsJoined = Joiner[Int].joinAll(liJoined: _*)
+  val allIntsJoined = Joiner[Int].joinAll(liJoined *)
   val allIntsJoined2 = liJoined.joinAll
   s"all ints joined: $allIntsJoined" pipe println
   s"all ints joined: $allIntsJoined2" pipe println

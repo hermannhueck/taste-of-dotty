@@ -1,11 +1,11 @@
 package dotty.samples._03context
 
 import scala.concurrent.{Future, Await, ExecutionContext}
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Try, Success, Failure}
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def GivenExecutionContext1: Unit =
 

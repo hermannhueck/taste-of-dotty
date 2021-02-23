@@ -8,8 +8,8 @@ object VarargPatterns {
   val xs = List(1, 2, 3)
 
   xs match
-    case List(1, 2, xs: _*) => println(xs)    // binds xs
-    case List(1, _ : _*) =>                   // wildcard pattern
+    case List(1, 2, xs *) => println(xs)    // binds xs
+    case List(1, _ *) =>                   // wildcard pattern
     case _ =>
 
   // The old syntax, which is shorter but less regular, is no longer supported.

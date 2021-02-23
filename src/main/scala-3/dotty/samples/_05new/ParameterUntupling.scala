@@ -11,8 +11,8 @@ object ParameterUntupling extends App {
   val sums2 = xs map { (x, y) => x + y } // List(11, 22, 33)
   val sums3 = xs.map(_ + _) // List(11, 22, 33)
 
-  import scala.util.chaining._
-  import util._
+  import scala.util.chaining.*
+  import util.*
 
   line().green pipe println
 

@@ -4,7 +4,7 @@ object Macros {
 
   // Macros: Quotes and Splices
 
-  import scala.quoted._
+  import scala.quoted.*
 
   inline def assert(expr: => Boolean): Unit =
     ${ assertImpl('expr) }
@@ -62,7 +62,7 @@ object Macros {
 
   // Lifting Expressions
 
-  import scala.quoted._
+  import scala.quoted.*
 
   enum Exp {
     case Num(n: Int)
@@ -71,7 +71,7 @@ object Macros {
     case Let(x: String, e: Exp, in: Exp)
   }
 
-  import Exp._
+  import Exp.*
 
   val exp = Plus(Plus(Num(2), Var("x")), Num(4))
   val letExp = Let("x", Num(3), exp)

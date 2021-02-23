@@ -1,7 +1,7 @@
 package dotty.samples._03context
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 def compute[F[_]: Monad, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
   for

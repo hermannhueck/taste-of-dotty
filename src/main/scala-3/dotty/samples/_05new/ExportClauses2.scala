@@ -6,12 +6,12 @@ class A:
 
 class B:
   private val a = new A
-  export a.{a2 => aString} // exports a.a2 aliased to aString
+  export a.{a2 as aString} // exports a.a2 aliased to aString
 
 @main def ExportClauses2: Unit =
 
-  import scala.util.chaining._
-  import util._
+  import scala.util.chaining.*
+  import util.*
 
   line().green pipe println
 

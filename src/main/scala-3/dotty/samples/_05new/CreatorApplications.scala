@@ -9,8 +9,8 @@ val sb =
 val s =
   sb.toString
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def CreatorApplications =
   line().green pipe println

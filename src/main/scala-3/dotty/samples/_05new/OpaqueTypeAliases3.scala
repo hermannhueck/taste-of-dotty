@@ -28,7 +28,7 @@ object OpaqueTypeAliases3 {
 
   object User {
 
-    import Access._
+    import Access.*
   
     case class Item(rights: Permissions)
   

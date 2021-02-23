@@ -15,7 +15,7 @@ object PostConditions:
       x
 
 import PostConditions.{ensuring, result}
-import util._
+import util.*
 
 @main def ContextFunctions2: Unit =
 

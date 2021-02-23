@@ -13,8 +13,8 @@ object TupleEqHList {
 
   @main def testTupleHList: Unit =
 
-    import util._
-    import scala.util.chaining._
+    import util.*
+    import scala.util.chaining.*
 
     printStartLine()
 

@@ -205,7 +205,7 @@ object Inline {
   
   // Summoning Implicits Selectively: summonFrom
 
-  import scala.collection.immutable._
+  import scala.collection.immutable.*
 
   // Consider for instance the problem of creating a TreeSet[T] or a HashSet[T] depending on
   // whether T has an Ordering or not. We can create a set of implicit definitions like this:

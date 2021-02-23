@@ -29,11 +29,11 @@ object Geometry:
       case Rectangle(w, h) => 2 * w + 2 * h
 
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
-import Geometry._
-import Geometry.Shape._
+import Geometry.*
+import Geometry.Shape.*
 
 @main def OpaqueTypeAliases1: Unit =
 

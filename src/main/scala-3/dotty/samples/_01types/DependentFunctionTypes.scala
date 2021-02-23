@@ -16,8 +16,8 @@ val stringEntry = new Entry { type Key = String; val key = "foo" }
 
 @main def DependentFunctionTypes: Unit =
 
-  import util._
-  import scala.util.chaining._
+  import util.*
+  import scala.util.chaining.*
   
   printStartLine()
 

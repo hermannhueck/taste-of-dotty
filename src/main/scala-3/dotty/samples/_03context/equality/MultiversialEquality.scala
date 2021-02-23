@@ -17,8 +17,8 @@ object MultiversialEquality {
   assert(s != x)
 
 
-  import scala.util.chaining._
-    import util._
+  import scala.util.chaining.*
+    import util.*
 
   @main def EqualityCheck: Unit =
 

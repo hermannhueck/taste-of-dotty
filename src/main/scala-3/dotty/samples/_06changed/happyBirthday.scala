@@ -9,7 +9,7 @@ package dotty.samples._06changed
       " and " ++ others.mkString(", ")
     } ++ "."
 
-  import util._
+  import util.*
 
   println(congrats.green.boxed())
   

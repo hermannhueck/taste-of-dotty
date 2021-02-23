@@ -21,8 +21,8 @@ def f(x: ResetGrowable[Int]) =
   x.reset()
   x.add(-21)
 
-import util._
-import scala.util.chaining._
+import util.*
+import scala.util.chaining.*
 
 @main def testIntersect: Unit =
   printLine()

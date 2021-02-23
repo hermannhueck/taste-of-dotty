@@ -11,8 +11,8 @@ def help(id: UserName | Password): String =
     case Password(hash) => hash.toString
 
 
-import util._
-import scala.util.chaining._
+import util.*
+import scala.util.chaining.*
 
 @main def testUnion: Unit =
 

@@ -38,11 +38,11 @@ object Ord2 {
     maximum(xs)(using descending)
 }
 
-import Ord2._ // imports only symbol which are not given
+import Ord2.* // imports only symbol which are not given
 // import Ord2.given // given types are found in implicit scope (typeclass companion object)
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def GivenOrd2: Unit =
 

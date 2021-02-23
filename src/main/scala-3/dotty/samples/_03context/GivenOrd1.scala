@@ -41,11 +41,11 @@ object Ord1 {
     maximum(xs)(using descending)
 }
 
-import Ord1._ // imports only symbol which are not given
+import Ord1.* // imports only symbol which are not given
 import Ord1.given // imports the givens (also the terms)
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def GivenOrd1: Unit =
 

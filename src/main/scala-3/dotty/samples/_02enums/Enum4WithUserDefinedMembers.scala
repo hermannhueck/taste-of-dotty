@@ -1,6 +1,6 @@
 package dotty.samples._02enums
 
-import scala.Console._
+import scala.Console.*
 
 enum Color4(val escape: String):
 
@@ -12,8 +12,8 @@ enum Color4(val escape: String):
 
 
 
-import util._
-import Color4._
+import util.*
+import Color4.*
 
 @main def printGreen(strings: String*) =
   val text = strings mkString " "

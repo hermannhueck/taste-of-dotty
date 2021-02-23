@@ -10,8 +10,8 @@ val circle = Circle(0, 0, 1)
 val cf1 = circle.circumference
 val cf2 = circumference(circle)
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def ExtensionMethods1: Unit =
   printLine()

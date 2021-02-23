@@ -1,6 +1,6 @@
 package dotty.playground
 
-import scala.util.chaining._
+import scala.util.chaining.*
 import scala.language.implicitConversions // prevents warning in line 12
 
 val r = scala.util.Random

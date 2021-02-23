@@ -7,12 +7,12 @@ enum Tree4[+T]:
     case Leaf4(_) => 1
     case Node4(left, right) => left.count + right.count
 
-import Tree4._
+import Tree4.*
 
 val tree4: Tree4[Int] = Node4(Leaf4(1), Node4(Leaf4(4), Leaf4(4)))
 val count = tree4.count
 
-import util._
+import util.*
 
 @main def printTree4: Unit =
   println(line())

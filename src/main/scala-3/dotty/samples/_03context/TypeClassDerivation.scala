@@ -2,7 +2,7 @@ package dotty.samples._03context
 
 object TypeclassDerivation {
 
-  import scala.deriving._
+  import scala.deriving.*
   import scala.compiletime.{erasedValue, summonInline}
   
   inline def summonAll[T <: Tuple]: List[Eq[?]] =
@@ -47,7 +47,7 @@ object TypeclassDerivation {
         case p: Mirror.ProductOf[T] => eqProduct(p, elemInstances)
 }
 
-import TypeclassDerivation._
+import TypeclassDerivation.*
 
 enum Opt[+T] derives Eq:
   case Sm(t: T)
@@ -59,7 +59,7 @@ enum Tree[+T] derives Eq:
 
 @main def TypeclassDerivationTestApp: Unit =
 
-  import Opt._
+  import Opt.*
 
   val eqoi = summon[Eq[Opt[Int]]]
 
@@ -67,7 +67,7 @@ enum Tree[+T] derives Eq:
   assert(!eqoi.eqv(Sm(23), Sm(13)))
   assert(!eqoi.eqv(Sm(23), Nn))
 
-  import Tree._
+  import Tree.*
 
   given Eq[Tree[Int]] = summon[Eq[Tree[Int]]]
 

@@ -23,7 +23,7 @@ object ExportClauses1 extends App {
     private val scanUnit = new Scanner
 
     export scanUnit.scan
-    export printUnit.{status => _, _}
+    export printUnit.{status as _, *}
 
     def status: List[String] = printUnit.status ++ scanUnit.status
   }

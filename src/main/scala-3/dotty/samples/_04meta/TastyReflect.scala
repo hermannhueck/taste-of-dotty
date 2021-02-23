@@ -5,9 +5,9 @@ object TastyReflect {
   // API: From quotes and splices to TASTy reflect trees and back
 
   // To provide reflection capabilities in macros we need to add
-  // an implicit parameter of type scala.quoted.Quotes and import tasty._ from it in the scope where it is used.
+  // an implicit parameter of type scala.quoted.Quotes and import tasty.* from it in the scope where it is used.
 
-  import scala.quoted._
+  import scala.quoted.*
 
   inline def natConst(x: => Int): Int = ${natConstImpl('{x})}
   
@@ -21,7 +21,7 @@ object TastyReflect {
   // Sealing and Unsealing
 
   def natConstImpl(x: Expr[Int])(using quotes: Quotes): Expr[Int] =
-    import quotes.reflect._
+    import quotes.reflect.*
     val xTree: Term = x.asTerm
     xTree match
       case Inlined(_, _, Literal(IntConstant(n: Int))) =>
@@ -40,7 +40,7 @@ object TastyReflect {
 
   // def myMacroImpl(param: Expr[Boolean])(using quotes: Quotes): Expr[Unit] =
   //   import qctx.tasty.{_, given}
-  //   import util._
+  //   import util.*
   
   //   param.unseal.underlyingArgument match
   //     case t @ Apply(Select(lhs, op), rhs :: Nil) => ???
@@ -52,7 +52,7 @@ object TastyReflect {
   // Positions
 
   def macroImpl()(quotes: Quotes): Expr[Unit] =
-    import quotes.reflect._
+    import quotes.reflect.*
     val pos = Position.ofMacroExpansion
 
     val path = pos.sourceFile.jpath.toString
@@ -75,7 +75,7 @@ object TastyReflect {
   // The code below, for example, collects the pattern variables of a tree.
 
   /*
-  import scala.tasty.reflect.TreeUtils._
+  import scala.tasty.reflect.TreeUtils.*
 
   def collectPatternVariables(tree: Tree)(implicit ctx: Context): List[Symbol] = {
     val acc = new TreeAccumulator[List[Symbol]] {

@@ -1,4 +1,4 @@
-import dotty.samples.types._
+import dotty.samples.types.*
 
 val name = UserName("Eve")
 

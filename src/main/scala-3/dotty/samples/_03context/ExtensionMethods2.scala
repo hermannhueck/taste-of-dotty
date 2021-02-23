@@ -21,8 +21,8 @@ extension [T](xs: List[T])(using Ordering[T])
       xs.zipWithIndex.collect { case (x, i) if x <= limit => i }
 
 
-import scala.util.chaining._
-import util._
+import scala.util.chaining.*
+import util.*
 
 @main def ExtensionMethods2: Unit =
 

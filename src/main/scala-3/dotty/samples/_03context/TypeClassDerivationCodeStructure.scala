@@ -2,7 +2,7 @@ package dotty.samples._03context
 
 object TypeclassDerivationCodeStructure {
 
-  import scala.deriving._
+  import scala.deriving.*
 
   // type class 'Eq'
   trait Eq[T]:
@@ -23,7 +23,7 @@ object TypeclassDerivationCodeStructure {
     case Sm(t: T)
     case Nn
 
-  import Opt._
+  import Opt.*
 
   // val eqoi = summon[Eq[Opt[Int]]]
 
@@ -37,7 +37,7 @@ object TypeclassDerivationCodeStructure {
     case Leaf(elem: T)
     case Node(left: Tree[T], right: Tree[T])
 
-  import Tree._
+  import Tree.*
 
   given Eq[Tree[Int]] = summon[Eq[Tree[Int]]]
 
