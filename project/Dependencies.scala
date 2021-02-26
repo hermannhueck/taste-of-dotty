@@ -3,9 +3,9 @@ import dotty.tools.sbtplugin.DottyPlugin.autoImport._
 
 object Dependencies {
 
-  val catsEffectVersion = "2.3.1"
-  val scalaTestVersion = "3.2.3"
-  val scalaCheckVersion = "1.15.2"
+  val catsEffectVersion = "2.3.3"
+  val scalaTestVersion = "3.2.5"
+  val scalaCheckVersion = "1.15.3"
   val junitVersion = "0.11"
   val kindProjectorVersion = "0.11.3"
 
