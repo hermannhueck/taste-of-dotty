@@ -1,5 +1,6 @@
 # directories
 target/
+new-projects/
 
 # hidden directories
 .idea/
