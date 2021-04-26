@@ -15,21 +15,19 @@ case class BigFloat(mantissa: BigInt, exponent: Int) {
   override def toString = s"${mantissa}e${exponent}"
 }
 
-object BigFloat {
+object BigFloat:
 
   import scala.util.FromDigits
 
-  def apply(digits: String): BigFloat = {
+  def apply(digits: String): BigFloat =
 
     val (mantissaDigits, givenExponent) =
-      digits.toUpperCase.split("E").asInstanceOf[Array[String]] match
+      digits.toUpperCase.nn.split('E') match
         case Array(mantissaDigits, edigits) =>
           val expo =
             try FromDigits.intFromDigits(edigits.nn)
-            catch {
-              case ex: FromDigits.NumberTooLarge =>
-                throw FromDigits.NumberTooLarge(s"exponent too large: $edigits")
-            }
+            catch case ex: FromDigits.NumberTooLarge =>
+              throw FromDigits.NumberTooLarge(s"exponent too large: $edigits")
           (mantissaDigits, expo)
         case Array(mantissaDigits) =>
           (mantissaDigits, 0)
@@ -44,9 +42,3 @@ object BigFloat {
           (intPart, givenExponent)
 
     BigFloat(BigInt(intPart), exponent)
-  }
-
-  // given FromDigits : FromDigits.Floating[BigFloat] {
-  //   def fromDigits(digits: String) = apply(digits)
-  // }
-}

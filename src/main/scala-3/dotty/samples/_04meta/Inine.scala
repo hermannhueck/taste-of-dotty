@@ -124,7 +124,8 @@ object Inline {
 
   // constvalue is a function that produces the constant value represented by a type.
 
-  import scala.compiletime.{constValue, S}
+  import scala.compiletime.constValue
+  import scala.compiletime.ops.int.S
 
   transparent inline def toIntC[N <: Matchable]: Int =
     inline constValue[N] match

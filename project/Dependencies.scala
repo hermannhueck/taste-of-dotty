@@ -1,10 +1,9 @@
 import sbt._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport._
 
 object Dependencies {
 
-  val catsEffectVersion = "2.3.3"
-  val scalaTestVersion = "3.2.5"
+  val catsEffectVersion = "3.1.0"
+  val scalaTestVersion = "3.2.8"
   val scalaCheckVersion = "1.15.3"
   val junitVersion = "0.11"
   val kindProjectorVersion = "0.11.3"
@@ -26,7 +25,7 @@ object Dependencies {
   def dependenciesFor(scalaVersion: String): Seq[ModuleID] =
     if (scalaVersion.startsWith("3.")) {
       // Dotty dependencies
-      commonDependencies.map(_.withDottyCompat(scalaVersion)) ++
+      commonDependencies.map(_.cross(CrossVersion.for3Use2_13)) ++
         dottyDependencies(scalaVersion) ++
         javaDependencies
     } else {
