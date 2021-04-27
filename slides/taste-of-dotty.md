@@ -29,6 +29,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - [Design Goals](#ref_design_goals)
 - [Project Setup](#ref_project_setup)
 - [Using Scala 2 Libraries](#ref_using_scala2_libraries)
+- [TASTy](#ref_tasty)
 - [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
 - [Indentation / Optional Braces](#ref_indentation_optional_braces)
 - [New Control Syntax](#ref_new_control_syntax)
@@ -50,8 +51,9 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - [Type Lambdas](#ref_type_lambdas)
 - [Typeclasses](#ref_typeclasses)
 - [Opaque Type Aliases](#ref_opaque_type_aliases)
-- [Context Functions](#ref_context_functions)
+- [Polymorphic Function Types](#ref_polymorphic_function_types)
 - [Dependent Function Types](#ref_dependent_function_types)
+- [Context Functions](#ref_context_functions)
 - [Tuples are HLists](#ref_tuples_are_hlists)
 
 ---
@@ -62,7 +64,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - [Export Clauses](#ref_export_clauses)
 - [Explicit Nulls](#ref_explicit_nulls)
 - [_inline_](#ref_inline)
-- [Multiversial Equality](#ref_multiversial_equality)
+- [Multiversial or Strict Equality](#ref_multiversial_equality)
 - [Typeclass Derivation](#ref_typeclass_derivation)
 - [Given By-Name Parameters](#ref_given_byname_parameters)
 - [Implicit Resolution](#ref_implicit_resolution)
@@ -102,24 +104,19 @@ The presentation also contains many links to specific chapters in the Dotty docs
 ### IDE Support[^3]
 <br/>
 
-- Dotty comes with a built-in Dotty Language Server.
-- Should work with any editor that supports LSP.
-  (Language Server Protocol)
-- Only Visual Studio Code is officially supported.
+- IntelliJ IDEA supports Scala 3.
+- Metals supports Scala 3.
+- Metals works with any editor that supports LSP. (Language Server Protocol)
 
 [^3]: [https://dotty.epfl.ch/docs/usage/ide-support.html](https://dotty.epfl.ch/docs/usage/ide-support.html)
 
 ---
 
-### Prerequisites
+### sbt support
 <br/>
 
-- _sbt_ is installed.
-- VSCode is installed.
-- Make sure you can start VSCode with the CLI command _code_. This is default on all systems except macOS.
-  (macOS users should follow the instructions below to install the _code_ command.[^4])
-
-[^4]: [https://code.visualstudio.com/docs/setup/mac#_command-line](https://code.visualstudio.com/docs/setup/mac#_command-line)
+- _sbt 1.5.x++_ supports Scala 3 out of the box.
+- _sbt-dotty_ plugin is no longer needed since _sbt 1.5.0_.
 
 ---
 
@@ -129,16 +126,15 @@ The presentation also contains many links to specific chapters in the Dotty docs
 - create new project: _sbt new scala/scala3.g8_
 - (or: _sbt new scala/scala3-cross.g8_ for a cross-build project)
 - _cd_ to project directory
-- in the project directory: _sbt launchIDE_
-  (starts VSCode with the current folder as workspace,
-  installs the Dotty Language Server in VSCode)
+- start _sbt_ in the project directory
+- open project in _VS Code_
 
 ---
 
 ### build.sbt
 
 ```scala
-val scala3Version = "3.0.0-M3"
+val scala3Version = "3.0.0-RC3"
 
 lazy val root = project
   .in(file("."))
@@ -153,54 +149,87 @@ lazy val root = project
 ---
 
 <br/>
-### project/plugin.sbt
-
-<br/>
-
-```scala
-// sbt-dotty plugin
-addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.5.2")
-```
-
----
-
-<br/>
 ### project/build.properties
 
 <br/>
 
 ```scala
-// change to latest sbt version
-sbt.version=1.4.7
+sbt.version=1.5.0
 ```
 
 ---
 
 <a name="ref_using_scala2_libraries"/>
 
-# Using Scala 2 Libraries[^4a]
+# Using Scala 2 Libraries[^4]
 
-[^4a]: [https://github.com/lampepfl/dotty-example-project#getting-your-project-to-compile-with-dotty](https://github.com/lampepfl/dotty-example-project#getting-your-project-to-compile-with-dotty)
+[^4]: [https://scalacenter.github.io/scala-3-migration-guide/docs/compatibility/classpath.html](https://scalacenter.github.io/scala-3-migration-guide/docs/compatibility/classpath.html)
 
 ---
 
-### Using Scala 2 Libraries
+### Using Scala 2 Libraries in Scala 3
 
 - Dotty can already utilize Scala 2 libraries.
 - This works because Dotty is currently retro-compatible with Scala 2.x.
-- This allows to migrate to Dotty, even before 3rd party dependencies have been migrated.
+- This allows to migrate your app to Dotty, even before 3rd party dependencies have been migrated.
 
 <br/>
 
 ```scala
 // build.sbt
 
-libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-effect" % catsEffectVersion,
-    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
-  ).map(module => module.withDottyCompat(scalaVersion.value))
+libraryDependencies += ("my.domain" %% "myScala3Lib" % myScala3LibVersion).cross(CrossVersion.for3Use2_13)
 
+libraryDependencies ++= Seq(
+    "co.fs2" %% "fs2-core" % fs2Version,
+    "co.fs2" %% "fs2-io" % fs2Version,
+    "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+  ).map(module => module.cross(CrossVersion.for3Use2_13))
 ```
+
+---
+
+### Using Scala 3 Libraries in Scala 2
+
+- Scala 2.13.5 and higher can utilize Scala 3 libraries.
+- This works because the Scala 3 compiler implements a TASTY reader (enabled by compiler flag _-Ytasty-reader_).
+
+<br/>
+
+```scala
+// build.sbt
+
+scalaVersion = "2.13.5"
+
+scalacOptions += "-Ytasty-reader" // supported by Scala 2.13.5 and hgigher
+
+libraryDependencies += "my.domain" %% "myScala3Lib" % myScala3LibVersion
+```
+
+---
+
+<a name="ref_tasty"/>
+
+# TASTy[^4a]
+
+[^4a]: [https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html](https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html)
+
+---
+
+### What is TASTy? - (Typed Abstract Syntax Trees)
+
+- Tasty is the high-level interchange (serialization) format for Scala 3.
+- Represents the syntactic structure of programs and also contains complete information about types and positions.
+- The Tasty “snapshot” of a code file is taken after type checking (so that all types are present and all implicits are elaborated) but before any transformations (so that no information is lost or changed).
+- Heavily optimized for compactness (approximately same size as class files).
+- .tasty files are now co-located with .class files.
+- .tasty files are included in published JARs.
+
+---
+
+![inline 50%](TheTastyVision-Odersky-ScalaDays2018.png)
+
+Image taken from ["Preparing for Scala 3" - Martin Odersky's keynote of Scala Days 2018, Berlin](https://de.slideshare.net/Odersky/preparing-for-scala-3)
 
 ---
 
@@ -226,7 +255,7 @@ libraryDependencies ++= Seq(
 // whatever.scala
 package dotty.samples
 
-import scala.util.chaining._
+import scala.util.chaining.*
 
 val r = scala.util.Random
 
@@ -239,7 +268,7 @@ def boxed(what: String): String = {
 }
 
 def printBoxed(what: String): Unit =
-  what pipe boxed pipe println
+  what pipe boxed tap println
 ```
 
 ---
@@ -257,8 +286,8 @@ def printBoxed(what: String): Unit =
 
 - Braces are optional.
 - Without braces identation becomes significant to delimit a block of code.
-- An optional colon at the end of the line starts a new indentation block.
-- End markers are optional.
+- An colon at the end of the line starts a new indentation block.
+- _end_ markers are optional.
 
 ---
 
@@ -298,16 +327,16 @@ end MyTrait // optional end marker
 ### if ... then ... else
 
 ```scala
-  val x = 42
+val x = 42
 
-  if x < 0 then -x else x
+if x < 0 then -x else x
 
-  if x < 0 then
-    "negative"
-  else if x == 0 then
-    "zero"
-  else
-    "positive"
+if x < 0 then
+  "negative"
+else if x == 0 then
+  "zero"
+else
+  "positive"
 ```
 
 ---
@@ -315,15 +344,15 @@ end MyTrait // optional end marker
 ### while ... do (while-loop)
 
 ```scala
-  var x = 42
-  def f(x: Int): Int = x - 10
+var x = 42
+def f(x: Int): Int = x - 10
 
-  while x >= 0 do x = f(x)
+while x >= 0 do x = f(x)
 
-  while
-    x >= 0
-  do
-    x = f(x)
+while
+  x >= 0
+do
+  x = f(x)
 ```
 
 ---
@@ -331,17 +360,17 @@ end MyTrait // optional end marker
 ### for ... do (for-loop)
 
 ```scala
-  val xs = List(1, 2, 3)
-  val ys = List(10, 20, 30)
+val xs = List(1, 2, 3)
+val ys = List(10, 20, 30)
 
-  for x <- xs if x > 0
-  do println(x * x)
+for x <- xs if x > 0
+do println(x * x)
 
-  for
-    x <- xs
-    y <- ys
-  do
-    println(x + y)
+for
+  x <- xs
+  y <- ys
+do
+  println(x + y)
 ```
 
 ---
@@ -349,16 +378,16 @@ end MyTrait // optional end marker
 ### for ... yield (for-comprehension)
 
 ```scala
-  val xs = List(1, 2, 3)
-  val ys = List(10, 20, 30)
+val xs = List(1, 2, 3)
+val ys = List(10, 20, 30)
 
-  for x <- xs if x > 0
-  yield x * x
+for x <- xs if x > 0
+yield x * x
 
-  for
-    x <- xs
-    y <- ys
-  yield x + y
+for
+  x <- xs
+  y <- ys
+yield x + y
 ```
 
 ---
@@ -378,7 +407,7 @@ end MyTrait // optional end marker
 @main def happyBirthday(age: Int, name: String, others: String*): Unit =
 
   val congrats = s"Happy Birthday at age $age to $name" ++ {
-    if others.isEmpty
+    if others.isEmpty then
       ""
     else
       " and " ++ others.mkString(", ")
@@ -413,7 +442,8 @@ end MyTrait // optional end marker
 - When constructing instances the _new_ keyword is optional.
 - Works not only for case classes but also for regular classes.
 - Works for Java classes too.
-- If no _apply_ method is found, the compiler looks for a suitable constructor.
+- If no _apply_ method is found, the compiler creates _apply_ methods for each constructor.
+- These constructor proxies bear the same signatures as the constructors and invoke them.
 
 <br/>
 
@@ -429,7 +459,7 @@ val sb =
 
 <a name="ref_traits_parameters"/>
 
-# Traits Parameters[^10]
+# Trait Parameters[^10]
 
 [^10]: [https://dotty.epfl.ch/docs/reference/other-new-features/trait-parameters.html](https://dotty.epfl.ch/docs/reference/other-new-features/trait-parameters.html)
 
@@ -589,7 +619,7 @@ enum Tree[+T]:
   case Leaf(elem: T) extends Tree[T]
   case Node(left: Tree[T], right: Tree[T]) extends Tree[T]
 
-import Tree._
+import Tree.*
 
 val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 ```
@@ -607,7 +637,7 @@ enum Tree[+T]:
   case Leaf(elem: T)
   case Node(left: Tree[T], right: Tree[T])
 
-import Tree._
+import Tree.*
 
 val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 ```
@@ -628,7 +658,7 @@ enum Tree[+T]:
     case Leaf(_) => 1
     case Node(left, right) => left.count + right.count
 
-import Tree._
+import Tree.*
 
 val tree: Tree[Int] = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
 val count = tree.count // 3
@@ -659,35 +689,32 @@ val count = tree.count // 3
 
 ```scala
 trait Resettable:
-  def reset(): this.type
+  def reset(): Unit
 
 trait Growable[T]:
-  def add(x: T): this.type
+  def add(x: T): Unit
 
-type ResetGrowable[T] =
-  Resettable & Growable[T]
+def f(x: Resettable & Growable[String]) =
+   x.reset()
+   x.add("first")
 ```
 
 ---
 
 ```scala
-class MyClass(var x : Int = 0) extends Resettable, Growable[Int]:
-  def reset() =
-    x = 0
-    this
-  def add(x: Int) =
-    this.x += x
-    this
+class MyClass(var x : String = "") extends Resettable, Growable[String]:
+  def reset(): Unit =
+    x = ""
+  def add(s: String): Unit =
+    x += s
+  override def toString =
+    s"[$x]"
 
-def f(x: ResetGrowable[Int]) =
-  x.reset()
-  x.add(-21)
-
-@main def runIntersectExample: Unit =
-  val obj = new MyClass(42) // 42
-  obj.reset() // 0
-  obj.add(10) // 10
-  f(obj) // 21
+val obj: MyClass = MyClass("foo") // [foo]
+obj.reset() // []
+obj.add("bar") // [bar]
+obj.add("baz") // [barbaz]
+f(obj) // [first]
 ```
 
 ---
@@ -710,6 +737,8 @@ def f(x: ResetGrowable[Int]) =
 - _|_ is commutative: _A | B_ is the same type as _B | A_.
 - Pattern matching is the natural way to decide if an _A | B_ is an _A_ or a _B_.
 - Union types are not suited to express coproducts.
+- Type inference doesn't give you the least (most specific) supertype.
+- If you want the least supertype, specify the type explicitly.
 
 ---
 
@@ -719,16 +748,14 @@ type Hash = Int
 case class UserName(name: String)
 case class Password(hash: Hash)
 
-def help(id: UserName | Password): String =
-  id match
-    case UserName(name) => name
-    case Password(hash) => hash.toString
-
 val name: UserName = UserName("Eve")
 val password: Password = Password(123)
 
-val nameOrPw: UserName | Password =
-  if (true) name else password
+val nameOrPw1 =
+  if true then name else password // : Object = UserName(Eve)
+
+val nameOrPw2: UserName | Password =
+  if true then name else password // : UserName | Password = UserName(Eve)
 ```
 
 ---
@@ -773,7 +800,7 @@ val nameOrPw: UserName | Password =
 
 ### The new Design in Scala 3 (2/2)
 
-- Typeclasses can be expressed in a more concise way (also due to the new extension methods).
+- Typeclasses can be expressed in a more concise way.
 - Context bounds remain unchanged in syntax and semantics.
 - Typeclass derivation is supported.
 - Implicit Function Types provide a way to abstract over given clauses.
@@ -791,48 +818,70 @@ val nameOrPw: UserName | Password =
 
 ---
 
+### Implicit Conversion in Scala 2
+
+```scala
+implicit def str2Int(s: String): Int =
+  Integer.valueOf(s)
+
+val xs = List("foo", "bar", "baz")
+
+xs("1") // bar
+xs("one") // java.lang.NumberFormatException: For input string: "one"
+```
+
+---
+
+### Implicit Conversion in Scala 3
+
+```scala
+given Conversion[String, Int] with
+  def apply(s: String): Int =
+    Integer.valueOf(s).nn
+
+val xs = List("foo", "bar", "baz")
+
+xs("1") // bar
+xs("one") // java.lang.NumberFormatException: For input string: "one"
+```
+
+---
+
 ### Implicit Conversions
 
-- _scala.Conversion_ is a subclass of _Function1_.
+- Scala 2 syntax is still available in Scala 3 (backward compat).
+- Scala 2 syntax can easily be mixed up with other implicit constructs.
+- In Scala 3 _scala.Conversion_ is a subclass of _Function1_ defined in package _scala_.
+- Implicit Conversions must extend _Conversion_.
+
+<br/>
 
 ```scala
 package scala
 abstract class Conversion[-T, +U] extends (T => U)
 ```
 
-- Implicit Conversions must extend _Conversion_.
+---
+
+### Conversion Example
 
 ```scala
 case class Token(str: String)
+
 given Conversion[String, Token]:
   def apply(str: String): Token = Token(str)
 ```
 
+<br/>
 or even more concise:
 
+<br/>
+
 ```scala
 case class Token(str: String)
+
 given Conversion[String, Token] = Token(_)
 ```
-
----
-
-### Implicit Conversion in Scala 2:
-
-<br/>
-<br/>
-
-```scala
-case class Token(str: String)
-
-implicit def stringToToken(str: String): Token = Token(str)
-```
-
-<br/>
-<br/>
-Syntax can easily be mixed up with other implicit constructs.
-<br/>
-<br/>
 
 ---
 
@@ -864,12 +913,13 @@ Syntax can easily be mixed up with other implicit constructs.
 case class Circle(x: Double, y: Double, radius: Double)
 
 extension (c: Circle)
-   def circumference: Double = c.radius * math.Pi * 2
+  def circumference: Double = c.radius * math.Pi * 2
 
 val circle = Circle(0, 0, 1)
 
 val cf1 = circle.circumference
 val cf2 = circumference(circle)
+
 assert(cf1 == cf2)
 ```
 
@@ -906,7 +956,7 @@ extension [T](xs: List[T])(using Ordering[T]) // uses an additional implicit par
 ### Givens
 
 - _given_ is a new keyword
-- _given_'s in many ways replace implicits
+- givens in many ways replace implicits
 - more concise, less boilerplate
 - focus on types instead of terms
 
@@ -921,7 +971,7 @@ extension [T](xs: List[T])(using Ordering[T]) // uses an additional implicit par
 import scala.concurrent.{Future, ExecutionContext}
 
 // implicit val ec: ExecutionContext = ExecutionContext.global // Scala 2
-given ec: ExecutionContext = ExecutionContext.global // variable ec can be omitted
+given ec: ExecutionContext = ExecutionContext.global // Scala 3: variable ec can be omitted
 
 def someComputation(): Int = ???
 val future: Future[Int] = Future { someComputation() }
@@ -1032,7 +1082,7 @@ given [T](using Ord[T]): Ord[List[T]] with
 
 ```scala
 def max[T](x: T, y: T)(using ord: Ord[T]): T =
-  if (ord.compare(x, y) < 0) y else x
+  if ord.compare(x, y) < 0 then y else x
 
 def maximum[T](xs: List[T])(using ord: Ord[T]): T =
   xs.reduceLeft(max)
@@ -1051,7 +1101,7 @@ def minimum[T](xs: List[T])(using ord: Ord[T]) =
 
 ```scala
 def max[T](x: T, y: T)(using Ord[T]): T =
-  if (summon[Ord[T]].compare(x, y) < 0) y else x
+  if summon[Ord[T]].compare(x, y) < 0 then y else x
 
 def maximum[T](xs: List[T])(using Ord[T]): T =
   xs.reduceLeft(max)
@@ -1088,7 +1138,7 @@ maximum(xs)(using descending) // maximum element of a List (in desc order)
 ### Context Bounds[^21]
 
 - These remain nearly unchanged.
-- A context bound is syntactic sugar for the last given clause of a method.
+- A context bound is syntactic sugar for the last _using_ clause of a method.
 
 <br/>
 
@@ -1114,14 +1164,14 @@ def maximum[T: Ord](xs: List[T]): T =
 object A:
   class TC
   given tc: TC = ???
-  def f(given TC) = ???
+  def f(using TC) = ???
 
 object B:
-  import A._ // imports all members of A except the given instances
+  import A.* // imports all members of A except the given instances
   import A.given // imports only the given instances of A
 
 object C:
-  import A.{given, _} // import givens and non-givens with a single import
+  import A.{given, *} // import givens and non-givens with a single import
 
 object D:
   import A.TC
@@ -1146,7 +1196,7 @@ object D:
 - Type Lambdas can be expressed in Scala 2 using a weird syntax with type alias and type projection.
 - The _kind-projector_ compiler plugin brought a more convenient type lambda syntax to Scala 2.
 - Type projections are dropped from Scala 3.[^24]
-- Type lambdas remove the need for _kind-projector_.
+- Type lambdas remove the need for the _kind-projector_ compiler plugin.
 
 [^24]: [https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html](https://dotty.epfl.ch/docs/reference/dropped-features/type-projection.html)
 
@@ -1182,14 +1232,16 @@ implicit def eitherMonad[L]: Monad[({type lambda[x] = Either[L, x]})#lambda] = .
 // Scala 2 using kind-projector
 implicit def eitherMonad[L]: Monad[lambda[x => Either[L, x]]] = ...
 
-// Scala 2 using kind-projector with ? syntax (use * in newer versions of kind-projector)
-implicit def eitherMonad[L]: Monad[Either[L, ?]] = ...
+// Scala 2 using kind-projector with * syntax (use ? in older versions of kind-projector)
+implicit def eitherMonad[L]: Monad[Either[L, *]] = ...
 
 // Scala 3 using a type lambda
-given eitherMonad[L]: Monad[[R] =>> Either[L, R]] { ... }
+given eitherMonad[L]: Monad[[R] =>> Either[L, R]] with
+  ...
 
 // Scala 3 using compiler option -Ykind-projector
-given eitherMonad[L]: Monad[Either[L, *]] { ... }
+given eitherMonad[L]: Monad[Either[L, *]] with
+ ...
 ```
 
 ---
@@ -1215,7 +1267,7 @@ trait Monad[F[?]] extends Functor[F]:
   extension [A, B](fa: F[A])
     def flatMap (f: A => F[B]): F[B]
 
-  extension [A, B] (fa: F[A])
+  extension [A, B](fa: F[A])
     override def map (f: A => B): F[B] = flatMap(fa)(f andThen pure)
   extension [A](fa: F[F[A]])
     def flatten: F[A] = flatMap(fa)(identity)
@@ -1229,7 +1281,7 @@ trait Monad[F[?]] extends Functor[F]:
 - Type class _Ord_ defined an Ordering for some type _A_.
 - _Ord_ was polymorphic and parameterized with type _A_.
 <br/>
-- _Functor_ and _Monad_ are parameterized with the higher-kinded type _F[?]_. (Higher-kinded polymorphism)
+- _Functor_ and _Monad_ are parameterized with the higher-kinded type _F[_\__]_. (Higher-kinded polymorphism)
 
 ---
 
@@ -1368,17 +1420,93 @@ val cCircumferenceDouble: Double = cCircumference.double
 
 ---
 
+<a name="ref_polymorphic_function_types"/>
+
+# Polymorphic Function Types[^28]
+
+[^28]: [https://dotty.epfl.ch/docs/reference/new-types/polymorphic-function-types.html](https://dotty.epfl.ch/docs/reference/new-types/polymorphic-function-types.html)
+
+---
+
+### Polymorphic Function Types
+
+- Scala 2 already provides polymorphic methods (but not polymorphic functions).
+- Polymorphic methods could not be turned into functions (there was no type that could describe them).
+- Scala 3 provides polymorphic functions and polymorphic function types.
+
+---
+
+### Polymorphic Function Types
+
+```scala
+// A polymorphic method:
+def foo[A](xs: List[A]): List[A] = xs.reverse
+
+// A polymorphic function value:
+val bar: [A] => List[A] => List[A]
+//       ^^^^^^^^^^^^^^^^^^^^^^^^^
+//       a polymorphic function type
+       = [A] => (xs: List[A]) => foo[A](xs)
+
+foo[Int](List(1, 2, 3)) // List(3, 2, 1)
+bar[Int](List(1, 2, 3)) // List(3, 2, 1)
+```
+
+---
+
+<a name="ref_dependent_function_types"/>
+
+# Dependent Function Types[^28a]
+
+[^28a]: [https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html](https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html)
+
+---
+
+### Dependent Function Types
+
+- In a dependent method the result type refers to a parameter of the method. 
+- Scala 2 already provides dependent methods (but not dependent functions).
+- Dependent methods could not be turned into functions (there was no type that could describe them).
+
+---
+
+```scala
+trait Entry { type Key; val key: Key }
+
+def extractKey(e: Entry): e.Key = e.key          // a dependent method (also in Scala 2)
+val extractor: (e: Entry) => e.Key = extractKey  // a dependent function value
+//             ║  ⇓ ⇓ ⇓ ⇓ ⇓ ⇓ ⇓  ║
+//             ║    Dependent     ║
+//             ║  Function Type   ║
+//             ╚════════════════╝
+
+val intEntry = new Entry { type Key = Int; val key = 42 }
+val stringEntry = new Entry { type Key = String; val key = "foo" }
+
+val intKey1 = extractKey(intEntry) // 42
+val intKey2 = extractor(intEntry) // 42
+val stringKey1 = extractKey(stringEntry) // "foo"
+val stringKey2 = extractor(stringEntry) // "foo"
+
+assert(intKey1 == intKey2)
+assert(stringKey1 == stringKey2)
+
+```
+
+---
+
 <a name="ref_context_functions"/>
 
-# Context Functions[^28]
+# Context Functions[^29]
 
-[^28]: [https://dotty.epfl.ch/docs/reference/contextual/context-functions.html](https://dotty.epfl.ch/docs/reference/contextual/context-functions.html)
+[^29]: [https://dotty.epfl.ch/docs/reference/contextual/context-functions.html](https://dotty.epfl.ch/docs/reference/contextual/context-functions.html)
 
 ---
 
 ### Context Functions
 
 - Context functions are functions with (only) context parameters.
+- They resemble methods with only implicit parameters.
 - Their types are context function types.
 - They are written using __?=>__ as the "arrow" sign.
 
@@ -1406,8 +1534,8 @@ def f(x: Int): Executable[Int] = {
   runOnEC
 }
 
-val res1: Int = f(2)(using ec)   //=> 4 // ExecutionContext passed explicitly
-val res2: Int = f(2)             //=> 4 // ExecutionContext resolved implicitly
+val res1: Int = f(2)             //=> 4 // ExecutionContext resolved implicitly
+val res2: Int = f(2)(using ec)   //=> 4 // ExecutionContext passed explicitly
 ```
 
 ---
@@ -1421,54 +1549,15 @@ object PostConditions:
 
   def result[T](using r: WrappedResult[T]): T = r
 
-  def [T](x: T) ensuring(condition: WrappedResult[T] ?=> Boolean): T =
-    assert(condition(using x))
-    x
+  extension [T](x: T)
+    def ensuring(condition: WrappedResult[T] ?=> Boolean): T =
+      assert(condition(using x))
+      x
 
 import PostConditions.{ensuring, result}
 
 val sum = List(1, 2, 3).sum.ensuring(result == 6)
-```
-
----
-
-<a name="ref_dependent_function_types"/>
-
-# Dependent Function Types[^29]
-
-[^29]: [https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html](https://dotty.epfl.ch/docs/reference/new-types/dependent-function-types.html)
-
----
-
-### Dependent Function Types
-
-- In a dependent method the result type refers to a parameter of the method. 
-- Scala 2 already provides dependent methods (but not dependent functions).
-- Dependent methods could not be turned into functions (there was no type that could describe them).
-
----
-
-```scala
-trait Entry { type Key; val key: Key }
-
-def extractKey(e: Entry): e.Key = e.key          // a dependent method
-val extractor: (e: Entry) => e.Key = extractKey  // a dependent function value
-//             ║  ⇓ ⇓ ⇓ ⇓ ⇓ ⇓ ⇓  ║
-//             ║    Dependent     ║
-//             ║  Function Type   ║
-//             ╚════════════════╝
-
-val intEntry = new Entry { type Key = Int; val key = 42 }
-val stringEntry = new Entry { type Key = String; val key = "foo" }
-
-val intKey1 = extractKey(intEntry) // 42
-val intKey2 = extractor(intEntry) // 42
-val stringKey1 = extractKey(stringEntry) // "foo"
-val stringKey2 = extractor(stringEntry) // "foo"
-
-assert(intKey1 == intKey2)
-assert(stringKey1 == stringKey2)
-
+println(s"sum = $sum") // sum = 6
 ```
 
 ---
@@ -1486,6 +1575,7 @@ assert(stringKey1 == stringKey2)
 - Both are completely equivalent.
 - In Scala 2 Tuple members are limited to 22, in Scala 3 unlimited.
 - _shapeless3_ must no longer convert between Tuples and HLists.
+- new List-like methods for _Tuple_
 
 ---
 
@@ -1505,6 +1595,25 @@ summon[(Int, String, Boolean) =:= Int *: String *: Boolean *: EmptyTuple] // ide
 
 assert(isb1 == isb2) // identical values
 ```
+
+---
+
+### New List-like methods on _Tuple_[^29a]
+
+_*:_ (prepend), _++_ (concat), _size_, _take_, _drop_, _zip_, _map_
+
+```scala
+isb1.size // 3
+isb1 ++ isb2 // (42,foo,true,42,foo,true)
+(isb1 ++ isb2).splitAt(2) // ((42,foo),(true,42,foo,true))
+isb1.take(2) // (42,foo)
+isb1.drop(1) // (foo,true)
+isb1.zip(isb2) // ((42,42),(foo,foo),(true,true))
+isb1.map([T] => (x: T) => Option[T](x)) // (Some(42),Some(foo),Some(true))
+isb1.map([T] => (x: T) => List[T](x, x)) // (List(42, 42),List(foo, foo),List(true, true))
+```
+
+[^29a]: [https://dotty.epfl.ch/api/scala/Tuple.html](https://dotty.epfl.ch/api/scala/Tuple.html)
 
 ---
 
@@ -1575,7 +1684,7 @@ type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
 
 ---
 
-### Export Clauses aka Export Aliases
+### Export Clauses a.k.a. Export Aliases
 
 - An export clause syntactically has the same format as an import clause.
 - An export clause defines aliases for selected members of an object.
@@ -1691,8 +1800,25 @@ val str: String = strOrNull.nn
 ### Java Interop
 
 - Java reference types (loaded from source or from byte code) are always nullable.
-- E.g. a Java value or method returning _String_ is patched to return _String|UncheckedNull_.
-- _UncheckedNull_ is an alias for _Null_ with 'magic properties' (see [documentation](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)).
+- Java member types, method parameter types and method return types are patched to be nullable.
+- E.g. a Java value or method returning _String_ is patched to return _String|Null_.
+
+```java
+// Java class
+class C {
+  private String member;
+  public String getValue() { return member; }
+}
+```
+
+is (using _-Yexplicit-nulls_) equivalent to:
+
+```scala
+// Scala 3 class
+class C:
+  private member: String | Null
+  def getValue(): String | Null = member
+```
 
 ---
 
@@ -1711,9 +1837,6 @@ val str: String = strOrNull.nn
 - _val_'s and parameters, expressions must be fixed at compile time to be inlinable.
 - The compiler guartantees inlining or fails to compile.
 - In Scala 2 the _@inline_ annotation was a hint to the compiler to inline if possible.
-- Use annotation _@forceInline_ when cross-compiling for Scala 2 and Scala 3.
-- _@forceInline_ is equivalent to the modifier _inline_ in Scala 3 and ignored in Scala 2.
-- For cross-compilation use both annotations: _@forceInline_ and _@inline_.
 
 ---
 
@@ -1734,7 +1857,7 @@ object Logger:
       op
 ```
 
-- _inline_ method _log_ will always be inlined at the point of call.
+- _inline_ method _log_ will always be inlined at the points of call.
 - if-then-else with a constant condition will be rewritten to its then- or else-part.
 
 ---
@@ -1796,7 +1919,7 @@ val res2: (String, String) = g("test") // Has type (String, String)
 
 <a name="ref_multiversial_equality"/>
 
-# Multiversial
+# Multiversial or Strict
 # Equality[^34] [^35]
 
 [^34]: [https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
@@ -1903,7 +2026,7 @@ Bar() == Foo()          // compiles; result is false
 - _Char_ can be compared to _Char_ and to _java.lang.Character_.
 - _Seq[T]_ can be compared to _Seq[T]_ (or any sub type) if their element types can be compared.
 - _Set[T]_ can be compared to _Set[T]_ (or any sub type) if their element types can be compared.
-- Any subtype of _AnyRef_ can be compared with _Null_.
+- A subtype of _AnyRef_ can be compared with _Null_.
   
 ---
 
@@ -1912,9 +2035,12 @@ Bar() == Foo()          // compiles; result is false
 <br/>
 
 ```scala
+// Numeric types can be compared with each other and with java.lang.Number.
 42 == 42L                         // true
 42 == 42.0                        // true
+// Seq[T] can be compared to Seq[T] (or any sub type) if their element types can be compared.
 List(1, 2, 3) == Vector(1, 2, 3)  // true
+// A subtype of AnyRef can be compared with Null.
 Foo() == null                     // false
 ```
 
@@ -1938,79 +2064,7 @@ Foo() == null                     // false
 
 - Scala 3 comes with low level mechanics for typeclass derivation,
 - which are provided primarily for library authors.
-
----
-
-### Typeclass Derivation (how it works)
-
-- Type class derivation supports product types (case classes) and sum types (enums, ADTs).
-- The typeclass author provides the typeclass trait and a method _derived_ in the typeclass companion object.
-- _derived_ - not necessarily but typically - has a parameter of type _Mirror_.
-- _Mirror_ provides the meta information of the typeclass, useful to implement _derived_.
-- The typeclass user can easily create in instance of the type class by adding a _derives_ clause to a type.
-- Code structure in the subsequent slides
 - For details see the [Dotty documentation](https://dotty.epfl.ch/docs/reference/contextual/derivation.html)
-
----
-
-### Typeclass Derivation (code structure 1/3)
-
-```scala
-import scala.deriving._
-
-trait Eq[T]:    // type class 'Eq'
-  def eqv(x: T, y: T): Boolean
-  extension (x: T)
-    def === (y: T): Boolean = eqv(x, y)
-    def !== (y: T): Boolean = !eqv(x, y)
-
-
-object Eq:    // type class 'Eq' companion
-  inline given derived[T](given m: Mirror.Of[T]): Eq[T] =
-    // use Mirror for the implementation, not shown here.
-    ???
-```
-
----
-
-### Typeclass Derivation (code structure 2/3)
-
-```scala
-enum Opt[+T] derives Eq:    // Opt derives a given instance of Eq[Opt[T]]
-  case Sm(t: T)
-  case Nn
-
-import Opt._
-
-val eqoi = summon[Eq[Opt[Int]]]     // summon the instance to a val
-
-assert(eqoi.eqv(Sm(23), Sm(23)))    // use the instance explicitly
-assert(!eqoi.eqv(Sm(23), Sm(13)))
-assert(!eqoi.eqv(Sm(23), Nn))
-```
-
-<br/>
-
----
-
-### Typeclass Derivation (code structure 3/3)
-
-```scala
-enum Tree[+T] derives Eq:    // Tree derives a given instance of Eq[Tree[T]]
-  case Leaf(elem: T)
-  case Node(left: Tree[T], right: Tree[T])
-
-import Tree._
-
-// summon Eq[Tree[Int]] instance into local scope
-given Eq[Tree[Int]] = summon[Eq[Tree[Int]]]
-
-// check equality of two trees using the given instance of Eq[Tree[Int]] implicitly
-assert(Node(Leaf(1), Node(Leaf(2), Leaf(3))) === Node(Leaf(1), Node(Leaf(2), Leaf(3))))
-assert(Node(Leaf(1), Node(Leaf(2), Leaf(3))) !== Node(Leaf(2), Leaf(3)))
-```
-
-<br/>
 
 ---
 
