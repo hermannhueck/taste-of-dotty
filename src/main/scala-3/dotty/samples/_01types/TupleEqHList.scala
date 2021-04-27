@@ -18,9 +18,30 @@ object TupleEqHList {
 
     printStartLine()
 
-    isb1 pipe println // (42,foo,true)
-    isb2 pipe println // (42,foo,true)
+    println(s"isb1: $isb1") // (42,foo,true)
+    println(s"isb2: $isb2") // (42,foo,true)
     assert(isb1 == isb2) // identical types
+    println(s"isb1 == isb2: ${isb1 == isb2}") // true
+
+    println
+    println(s"isb1.size: ${isb1.size}") // 3
+    println(s"isb1 ++ isb2: ${isb1 ++ isb2}") // (42,foo,true,42,foo,true)
+    println(s"(isb1 ++ isb2).splitAt(2): ${(isb1 ++ isb2).splitAt(2)}") // ((42,foo),(true,42,foo,true))
+    println(s"isb1.take(2): ${isb1.take(2)}") // (42,foo)
+    println(s"isb1.drop(1): ${isb1.drop(1)}") // (foo,true)
+    println(s"isb1.zip(isb2): ${isb1.zip(isb2)}") // ((42,42),(foo,foo),(true,true))
+    println(s"isb1.map([T] => (x: T) => Option[T](x)): ${isb1.map([T] => (x: T) => Option[T](x))}") // (Some(42),Some(foo),Some(true))
+    println(s"isb1.map([T] => (x: T) => List[T](x, x)): ${isb1.map([T] => (x: T) => List[T](x, x))}") // (List(42, 42),List(foo, foo),List(true, true))
+
+    // println
+
+    // def mapper[T](x: T): T = x match
+    //   case i: Int => -i
+    //   case s: String => s.toUppercase
+    //   case b: Boolean => !b
+    //   case _ => throw new Exception("illegal type")
+    // val mapped = isb1.map(mapper)
+    // println(mapped)
 
     printEndLine()
 }

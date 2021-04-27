@@ -1,12 +1,12 @@
 package dotty.samples._03context
 
-// use _ or ? for wildcard type
+// use _ (or ? in future Scala 3.x) for wildcard type
 trait Functor[F[_]]:
   extension [A](x: F[A])
     def map[B](f: A => B): F[B]
 
 
-// trait Monad[F[_]] extends Functor[F] // use _ or ? for wildcard type
+// trait Monad[F[_]] extends Functor[F] // use _ (or ? in future Scala 3.x) for wildcard type
 trait Monad[F[_]] extends Functor[F]:
 
   // intrinsic abstract methods for Monad
@@ -18,7 +18,7 @@ trait Monad[F[_]] extends Functor[F]:
 
   // other concrete methods
 
-  extension [A] (fa: F[A])
+  extension [A](fa: F[A])
     override def map[B](f: A => B): F[B] = flatMap(fa)(f andThen pure)
 
   extension [A](fa: F[F[A]])

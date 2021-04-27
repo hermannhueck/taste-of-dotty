@@ -1,5 +1,3 @@
-package dotty.playground
-
 import scala.util.chaining.*
 
 val r = scala.util.Random
@@ -14,5 +12,4 @@ def boxed(what: String): String =
   val line = "\u2500" * 50
   s"$line\n${what.toString}\n$line"
 
-@main def myMain() =
-  randomInt().toString tap printBoxed
+randomInt().toString tap printBoxed

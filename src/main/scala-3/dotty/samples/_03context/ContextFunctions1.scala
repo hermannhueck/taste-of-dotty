@@ -20,7 +20,7 @@ def f(x: Int): Executable[Int] = {
     ec.execute(() => result.set(x * x)) // execute a Runnable
     Thread.sleep(100L) // just for demo: wait for the Runnable to be executed
     result.get
-  runOnEC
+  runOnEC // return context function ExecutionContext ?=> Int
 }
 
 def g(exec: Executable[Int]) =
@@ -33,20 +33,20 @@ def g(exec: Executable[Int]) =
   
   printStartLine()
 
-  val res1: Int = f(2)(using ec)   // ExecutionContext passed explicitly
-  val res2: Int = f(2)             // ExecutionContext resolved implicitly
+  val res1: Int = f(2)             // ExecutionContext resolved implicitly
+  val res2: Int = f(2)(using ec)   // ExecutionContext passed explicitly
   
   println(res1) //=> 4
   println(res2) //=> 4
 
-  val res3 = g(22)      // is expanded to g((using ev) => 22)
-  val res4 = g(f(22))   // is expanded to g((using ev) => f(2)(using ev))
+  val res3 = g(22)      // is expanded to g((using ec) => 22)
+  val res4 = g(f(22))   // is expanded to g((using ec) => f(2)(using ec))
   val res5 = g((ctx: ExecutionContext) ?=> f(3)) // is expanded to g((ctx: ExecutionContext) ?=> f(3)(using ctx))
   val res6 = g((ctx: ExecutionContext) ?=> f(3)(using ctx)) // is left as it is
   
   println(res3) //=> 22
   println(res4) //=> 484 (result of 22*22)
-  println(res5) //=> 484 (result of 22*22)
-  println(res6) //=> 484 (result of 22*22)
+  println(res5) //=> 9 (result of 3*3)
+  println(res6) //=> 9 (result of 3*3)
 
   printEndLine()

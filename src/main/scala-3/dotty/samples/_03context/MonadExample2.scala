@@ -22,10 +22,10 @@ object MonadExample2:
     def pure[A](a: A): F[A]
 
     extension [A](x: F[A])
-        /** The fundamental composition operation */
+        // The fundamental composition operation
         def flatMap[B](f: A => F[B]): F[B]
 
-        /** The `map` operation can now be defined in terms of `flatMap` */
+        // The `map` operation can now be defined in terms of `flatMap`
         override def map[B](f: A => B) =
           x.flatMap(f.andThen(pure))
 
@@ -36,26 +36,23 @@ object MonadExample2:
   object Monad:
 
     given Monad[List] with
-      def pure[A](x: A): List[A] =
-        List(x)
-      extension [A](xs: List[A])
-          override def flatMap[B](f: A => List[B]): List[B] =
-            xs.flatMap(f) // rely on the existing `flatMap` method of `List`
+      override def pure[A](a: A): List[A] = List(a)
+      extension [A](fa: List[A])
+        override def flatMap[B](f: A => List[B]): List[B] =
+          fa.flatMap(f)
 
     given Monad[Option] with
-      def pure[A](x: A): Option[A] =
-        Option(x)
-      extension [A](xo: Option[A])
-          override def flatMap[B](f: A => Option[B]): Option[B] =
-            xo.flatMap(f) // rely on the existing `flatMap` method of `Option`
+      override def pure[A](a: A): Option[A] = Option(a)
+      extension [A](fa: Option[A])
+        override def flatMap[B](f: A => Option[B]): Option[B] =
+          fa.flatMap(f)
 
     // given [L]: Monad[[R] =>> Either[L, R]]
     given [L]: Monad[Either[L, *]] with // requires -Ykind-projector
-      override def pure[A](a: A): Either[L, A] =
-        Right(a)
+      override def pure[A](a: A): Either[L, A] = Right(a)
       extension [A](fa: Either[L, A])
         override def flatMap[B](f: A => Either[L, B]): Either[L, B] =
-          fa flatMap f
+          fa.flatMap(f)
 
   def compute[F[_]: Monad, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
     for

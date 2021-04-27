@@ -10,12 +10,12 @@ import scala.language.strictEquality
 Foo() == Foo()
 Foo() == Option(Foo())
 
-given Eql[Foo, Foo] = Eql.derived
+given CanEqual[Foo, Foo] = CanEqual.derived
 
 Foo() == Foo()
 Foo() == Option(Foo())
 
-final case class Bar() derives Eql
+final case class Bar() derives CanEqual
 
 Bar() == Bar()
 Bar() == Option(Bar())
@@ -23,8 +23,8 @@ Bar() == Option(Bar())
 Foo() == Bar()
 Bar() == Foo()
 
-given Eql[Foo, Bar] = Eql.derived
-given Eql[Bar, Foo] = Eql.derived
+given CanEqual[Foo, Bar] = CanEqual.derived
+given CanEqual[Bar, Foo] = CanEqual.derived
 
 Foo() == Bar()
 Bar() == Foo()
@@ -55,10 +55,10 @@ Foo() == null
 // -language:strictEquality
 //
 // In this case the compiler provides
-// an Eql instance to compare any two types:
+// an CanEqual instance to compare any two types:
 //
-def eqlAny[L, R]: Eql[L, R] = Eql.derived
-given Eql[Any, Any] = eqlAny
+def eqlAny[L, R]: CanEqual[L, R] = CanEqual.derived
+given CanEqual[Any, Any] = eqlAny
 
 Foo() == Foo()
 Foo() == Option(Foo())

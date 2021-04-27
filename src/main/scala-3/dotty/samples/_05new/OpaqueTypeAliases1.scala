@@ -41,12 +41,12 @@ import Geometry.Shape.*
 
   val circle = Circle(Length(1.0))
 
-  // val cArea: Double = circle.area // error: found: Area, required: Double
+  // val cArea0: Double = circle.area // error: found: Area, required: Double
   val cArea: Area = circle.area
   val cAreaDouble: Double = cArea.double
   f"circle area: $cAreaDouble%.3f" pipe println
 
-  // val cCircumference: Double = circle.circumference // error: found: Length, required: Double
+  // val cCircumference0: Double = circle.circumference // error: found: Length, required: Double
   val cCircumference: Length = circle.circumference
   val cCircumferenceDouble: Double = cCircumference.double
   f"circle circumference: $cCircumferenceDouble%.3f" pipe println
