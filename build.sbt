@@ -21,7 +21,7 @@ lazy val root = project
     publish / skip := true,
     initialCommands :=
       s"""|
-          |import scala.util.chaining._
+          |import scala.util.chaining.*
           |println
           |""".stripMargin
   )
