@@ -6,7 +6,12 @@ package dotty.playground
     if others.isEmpty then
       ""
     else
-      " and " ++ others.mkString(", ")
+      " and " ++ others.mkString(" and ")
     } ++ "."
 
+  import util.*
+  println(line().green)
+
   println(congrats)
+
+  println(line().green)

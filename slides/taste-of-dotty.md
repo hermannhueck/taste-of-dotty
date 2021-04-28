@@ -27,9 +27,9 @@ The presentation also contains many links to specific chapters in the Dotty docs
 # Agenda (1/3)
 
 - [Design Goals](#ref_design_goals)
+- [TASTy](#ref_tasty)
 - [Project Setup](#ref_project_setup)
 - [Using Scala 2 Libraries](#ref_using_scala2_libraries)
-- [TASTy](#ref_tasty)
 - [Top Level _def_'s and _val_'s](#ref_top_level_defs_and_vals)
 - [Indentation / Optional Braces](#ref_indentation_optional_braces)
 - [New Control Syntax](#ref_new_control_syntax)
@@ -60,11 +60,11 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 # Agenda (3/3)
 
-- [Match Types](#ref_match_types)
-- [Export Clauses](#ref_export_clauses)
 - [Explicit Nulls](#ref_explicit_nulls)
-- [_inline_](#ref_inline)
 - [Multiversial or Strict Equality](#ref_multiversial_equality)
+- [Export Clauses](#ref_export_clauses)
+- [Match Types](#ref_match_types)
+- [_inline_](#ref_inline)
 - [Typeclass Derivation](#ref_typeclass_derivation)
 - [Given By-Name Parameters](#ref_given_byname_parameters)
 - [Implicit Resolution](#ref_implicit_resolution)
@@ -93,6 +93,31 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 ---
 
+<a name="ref_tasty"/>
+
+# TASTy[^1a]
+
+[^1a]: [https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html](https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html)
+
+---
+
+### What is TASTy? - (Typed Abstract Syntax Trees)
+
+- Tasty is the high-level interchange (serialization) format for Scala 3.
+- Represents the syntactic structure of programs and also contains complete information about types and positions.
+- The Tasty “snapshot” of a code file is taken after type checking (so that all types are present and all implicits are elaborated) but before any transformations (so that no information is lost or changed).
+- Heavily optimized for compactness (approximately same size as class files).
+- .tasty files are now co-located with .class files.
+- .tasty files are included in published JARs.
+
+---
+
+![inline 50%](TheTastyVision-Odersky-ScalaDays2018.png)
+
+Image taken from ["Preparing for Scala 3" - Martin Odersky's keynote of Scala Days 2018, Berlin](https://de.slideshare.net/Odersky/preparing-for-scala-3)
+
+---
+
 <a name="ref_project_setup"/>
 
 # Project Setup[^2]
@@ -106,7 +131,7 @@ The presentation also contains many links to specific chapters in the Dotty docs
 
 - IntelliJ IDEA supports Scala 3.
 - Metals supports Scala 3.
-- Metals works with any editor that supports LSP. (Language Server Protocol)
+- Metals works with any editor that supports LSP (Language Server Protocol): VS Code, vim, emacs, Sublime Text, Eclipse
 
 [^3]: [https://dotty.epfl.ch/docs/usage/ide-support.html](https://dotty.epfl.ch/docs/usage/ide-support.html)
 
@@ -154,7 +179,7 @@ lazy val root = project
 <br/>
 
 ```scala
-sbt.version=1.5.0
+sbt.version=1.5.1
 ```
 
 ---
@@ -172,13 +197,15 @@ sbt.version=1.5.0
 - Dotty can already utilize Scala 2 libraries.
 - This works because Dotty is currently retro-compatible with Scala 2.x.
 - This allows to migrate your app to Dotty, even before 3rd party dependencies have been migrated.
+- Caveat: Dotty CANNOT invoke macros defined in Scala 2 libraries.
 
-<br/>
+---
+### Using Scala 2 Libraries in Scala 3
 
 ```scala
 // build.sbt
 
-libraryDependencies += ("my.domain" %% "myScala3Lib" % myScala3LibVersion).cross(CrossVersion.for3Use2_13)
+libraryDependencies += ("my.domain" %% "myScala213Lib" % myScala213LibVersion).cross(CrossVersion.for3Use2_13)
 
 libraryDependencies ++= Seq(
     "co.fs2" %% "fs2-core" % fs2Version,
@@ -192,7 +219,7 @@ libraryDependencies ++= Seq(
 ### Using Scala 3 Libraries in Scala 2
 
 - Scala 2.13.5 and higher can utilize Scala 3 libraries.
-- This works because the Scala 3 compiler implements a TASTY reader (enabled by compiler flag _-Ytasty-reader_).
+- This works because the Scala 2.13.5+ compiler implements a TASTY reader (enabled by compiler flag _-Ytasty-reader_).
 
 <br/>
 
@@ -201,35 +228,10 @@ libraryDependencies ++= Seq(
 
 scalaVersion = "2.13.5"
 
-scalacOptions += "-Ytasty-reader" // supported by Scala 2.13.5 and hgigher
+scalacOptions += "-Ytasty-reader" // supported by Scala 2.13.5 and higher
 
 libraryDependencies += "my.domain" %% "myScala3Lib" % myScala3LibVersion
 ```
-
----
-
-<a name="ref_tasty"/>
-
-# TASTy[^4a]
-
-[^4a]: [https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html](https://www.scala-lang.org/blog/2018/04/30/in-a-nutshell.html)
-
----
-
-### What is TASTy? - (Typed Abstract Syntax Trees)
-
-- Tasty is the high-level interchange (serialization) format for Scala 3.
-- Represents the syntactic structure of programs and also contains complete information about types and positions.
-- The Tasty “snapshot” of a code file is taken after type checking (so that all types are present and all implicits are elaborated) but before any transformations (so that no information is lost or changed).
-- Heavily optimized for compactness (approximately same size as class files).
-- .tasty files are now co-located with .class files.
-- .tasty files are included in published JARs.
-
----
-
-![inline 50%](TheTastyVision-Odersky-ScalaDays2018.png)
-
-Image taken from ["Preparing for Scala 3" - Martin Odersky's keynote of Scala Days 2018, Berlin](https://de.slideshare.net/Odersky/preparing-for-scala-3)
 
 ---
 
@@ -252,23 +254,20 @@ Image taken from ["Preparing for Scala 3" - Martin Odersky's keynote of Scala Da
 ---
 
 ```scala
-// whatever.scala
-package dotty.samples
-
-import scala.util.chaining.*
-
 val r = scala.util.Random
 
 def randomInt(): Int =
   r.nextInt
 
-def boxed(what: String): String = {
-  val line = "\u2500" * 50
-  s"$line\n${what.toString}\n$line"
-}
+def printBoxed(value: Any): Unit =
+  println(boxed(value))
 
-def printBoxed(what: String): Unit =
-  what pipe boxed tap println
+def boxed(value: Any): String =
+  val line = "\u2500" * 50
+  s"$line\n${value.toString}\n$line"
+
+@main def topLevelDefsAndVals() =
+  printBoxed(randomInt()) 
 ```
 
 ---
@@ -296,9 +295,9 @@ def printBoxed(what: String): Unit =
 ```scala
 // Scala 2 + 3:
 trait MyTrait {
-  def boxed(what: Any): String = {
+  def boxed(value: Any): String = {
     val line = "\u2500" * 50
-    s"$line\n${what.toString}\n$line"
+    s"$line\n${value.toString}\n$line"
   }
 }
 ```
@@ -308,9 +307,9 @@ trait MyTrait {
 ```scala
 // Scala 3:
 trait MyTrait:
-  def boxed(what: Any): String =
+  def boxed(value: Any): String =
     val line = "\u2500" * 50
-    s"$line\n${what.toString}\n$line"
+    s"$line\n${value.toString}\n$line"
 end MyTrait // optional end marker
 ```
 
@@ -410,7 +409,7 @@ yield x + y
     if others.isEmpty then
       ""
     else
-      " and " ++ others.mkString(", ")
+      " and " ++ others.mkString(" and ")
     } ++ "."
 
   println(congrats)
@@ -425,7 +424,7 @@ yield x + y
 - If annotated the method name is arbitrary.
 - Argument types can not only be _Array[String]_.
 - Any argument type is allowed if an instance of typeclass _scala.util.FromString_ is in implicit scope.
-- Dotty checks the arguments passed against the signature of the main function.
+- Dotty checks the runtime arguments passed against the signature of the main function.
 
 ---
 
@@ -680,7 +679,7 @@ val count = tree.count // 3
 - The type _A & B_ represents values that are of the type _A_ and _B_ at the same time.
 - _A & B_ has all members/properties of _A_ and all members/properties of _B_.
 - _&_ is commutative: _A & B_ is the same type as _B & A_.
-- _with_ ist not commutative: _A with B_ is not the same type as _B with A_.
+- _with_ ist not commutative: _A with B_ is not exactly the same type as _B with A_.
 - Intersection types will - in the long run - replace compound types: _A with B_
 
 ---
@@ -736,7 +735,7 @@ f(obj) // [first]
 - _A | B_ contains all members/properties which _A_ and _B_ have in common.
 - _|_ is commutative: _A | B_ is the same type as _B | A_.
 - Pattern matching is the natural way to decide if an _A | B_ is an _A_ or a _B_.
-- Union types are not suited to express coproducts.
+- Union types are not suited to express coproducts (use enums).
 - Type inference doesn't give you the least (most specific) supertype.
 - If you want the least supertype, specify the type explicitly.
 
@@ -747,6 +746,10 @@ type Hash = Int
 
 case class UserName(name: String)
 case class Password(hash: Hash)
+
+def check(what: UserName | Password): String = what match
+  case UserName(name) => name
+  case Password(hash) => hash.toString
 
 val name: UserName = UserName("Eve")
 val password: Password = Password(123)
@@ -791,7 +794,7 @@ val nameOrPw2: UserName | Password =
 - Focus on intent over mechanism
 - Implicit conversions are hard to misuse.
 - Concise syntax for extension methods
-- New keyword _given_
+- New keywords _given_ and _using_
 - _given_ instances focus on types instead of terms.
 - _using_ clauses replace _implicit_ parameters.
 - _given_ imports are distinct from regular imports.
@@ -803,9 +806,9 @@ val nameOrPw2: UserName | Password =
 - Typeclasses can be expressed in a more concise way.
 - Context bounds remain unchanged in syntax and semantics.
 - Typeclass derivation is supported.
-- Implicit Function Types provide a way to abstract over given clauses.
+- Context Functions provide a way to abstract over given clauses.
 - Implicit By-Name Parameters are an essential tool to define recursive synthesized values without looping.
-- Multiversal Equality introduces a special typeclass to support type safe equality.
+- Multiversal Equality introduces a special typeclass _CanEqual_ to support type safe equality.
 - Scala 2 implicits remain available in parallel for a long time (backward compatibility).
 
 ---
@@ -907,10 +910,13 @@ given Conversion[String, Token] = Token(_)
 
 ### Extension Methods
 
-<br/>
-
 ```scala
 case class Circle(x: Double, y: Double, radius: Double)
+
+// Scala 2 extension method:
+// implicit class CircleExtension(private val c: Circle) extends AnyVal {
+//   @inline def circumference: Double = c.radius * math.Pi * 2
+// }
 
 extension (c: Circle)
   def circumference: Double = c.radius * math.Pi * 2
@@ -1288,8 +1294,6 @@ trait Monad[F[?]] extends Functor[F]:
 ### Typeclasses: Monad Instances
 
 ```scala
-object Monad:
-
   given Monad[List] with
     override def pure[A](a: A): List[A] = List(a)
     extension [A, B](fa: List[A])
@@ -1364,12 +1368,12 @@ object Geometry:
   object Length:
     def apply(d: Double): Length = d
     extension (length: Length)
-      def double: Double = length
+      def toDouble: Double = length
 
   object Area:
     def apply(d: Double): Area = d
     extension (area: Area)
-      def double: Double = area
+      def toDouble: Double = area
 ```
 
 ---
@@ -1411,11 +1415,11 @@ val circle = Circle(Length(1.0))
 
 // val cArea: Double = circle.area // error: found: Area, required: Double
 val cArea: Area = circle.area
-val cAreaDouble: Double = cArea.double
+val cAreaDouble: Double = cArea.toDouble
 
 // val cCircumference: Double = circle.circumference // error: found: Length, required: Double
 val cCircumference: Length = circle.circumference
-val cCircumferenceDouble: Double = cCircumference.double
+val cCircumferenceDouble: Double = cCircumference.toDouble
 ```
 
 ---
@@ -1598,9 +1602,9 @@ assert(isb1 == isb2) // identical values
 
 ---
 
-### New List-like methods on _Tuple_[^29a]
+### New List-like methods on _Tuple_[^30]
 
-_*:_ (prepend), _++_ (concat), _size_, _take_, _drop_, _zip_, _map_
+- _*:_ (prepend), _++_ (concat), _size_, _take_, _drop_, _zip_, _map_
 
 ```scala
 isb1.size // 3
@@ -1613,114 +1617,15 @@ isb1.map([T] => (x: T) => Option[T](x)) // (Some(42),Some(foo),Some(true))
 isb1.map([T] => (x: T) => List[T](x, x)) // (List(42, 42),List(foo, foo),List(true, true))
 ```
 
-[^29a]: [https://dotty.epfl.ch/api/scala/Tuple.html](https://dotty.epfl.ch/api/scala/Tuple.html)
-
----
-
-<a name="ref_match_types"/>
-
-# Match Types[^30]
-
-[^30]: [https://dotty.epfl.ch/docs/reference/new-types/match-types.html](https://dotty.epfl.ch/docs/reference/new-types/match-types.html)
-
----
-
-### Match Types
-
-<br/>
-
-- Match types are _match_ expressions on the type level.
-- The syntax is analogous to _match_ expressions on the value level.
-- A match type reduces to one of a number of right hand sides, depending on the scrutinee type.
-
----
-
-### Match Types
-
-```scala
-type Elem[X] = X match
-  case String => Char
-  case Array[t] => t
-  case Iterable[t] => t
-
-// proofs
-summon[Elem[String]       =:=  Char]
-summon[Elem[Array[Int]]   =:=  Int]
-summon[Elem[List[Float]]  =:=  Float]
-summon[Elem[Nil.type]     =:=  Nothing]
-```
-
----
-
-### Recursive Match Types
-
-- Match types may be recursive.
-
-```scala
-type LeafElem[X] = X match
-  case String => Char
-  case Array[t] => LeafElem[t]
-  case Iterable[t] => LeafElem[t]
-  case AnyVal => X
-```
-
-<br/>
-
-- Recursive match types may have an upper bound.
-
-```scala
-type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
-  case EmptyTuple => Ys
-  case x *: xs => x *: Concat[xs, Ys]
-```
-
----
-
-<a name="ref_export_clauses"/>
-
-# Export Clauses[^31]
-
-[^31]: [https://dotty.epfl.ch/docs/reference/other-new-features/export.html](https://dotty.epfl.ch/docs/reference/other-new-features/export.html)
-
----
-
-### Export Clauses a.k.a. Export Aliases
-
-- An export clause syntactically has the same format as an import clause.
-- An export clause defines aliases for selected members of an object.
-- Exported members are accessible from inside the object as well as from outside ...
-- ... even when the aliased object is private.
-- Export aliases encourage a best practice: Prefer composition over inheritance.
-- They also fill the gap left by deprecated/removed package objects which inherited from some class or trait.
-- A _given_ instance can also be exported, if the exported member is also tagged with _given_.
-
----
-
-### Export Clauses
-
-```scala
-class A:
-  def a1 = 42
-  def a2 = a1.toString
-
-class B:
-  private val a = new A
-  export a.{a2 => aString} // exports a.a2 aliased to aString
-
-val b = new B
-
-// a.a1 and a.a2 are not directly accessible as a is private in B.
-// The export clause makes a.a2 (aliased to aString) accessible as a member of b.
-val bString = b.aString ensuring (_ == 42.toString)
-```
+[^30]: [https://dotty.epfl.ch/api/scala/Tuple.html](https://dotty.epfl.ch/api/scala/Tuple.html)
 
 ---
 
 <a name="ref_explicit_nulls"/>
 
-# Explicit Nulls[^32]
+# Explicit Nulls[^31]
 
-[^32]: [https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)
+[^31]: [https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html)
 
 ---
 
@@ -1728,7 +1633,7 @@ val bString = b.aString ensuring (_ == 42.toString)
 
 - Explicit nulls are an opt-in feature, enabled via the _-Yexplicit-nulls_ compiler flag.
 - This modifies the Scala type system, making reference types (anything that extends AnyRef) non-nullable.
-- Explicit nulls change the type hierarchy, so that Null is only a subtype of Any, as opposed to every reference type.
+- Explicit nulls change the type hierarchy, so that Null is only a [subtype of Any](https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html), as opposed to every reference type.
 - After erasure, Null remains a subtype of all reference types (as forced by the JVM).
 - _T | Null_ expresses nullability. It is the type of a nullable value.
 
@@ -1822,109 +1727,14 @@ class C:
 
 ---
 
-<a name="ref_inline"/>
-
-# _inline_[^33]
-
-[^33]: [https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html](https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html)
-
----
-
-### _inline_
-
-- Scala 3 introduces a new modifier _inline_, to be used with ...
-- ... methods, _val_'s, parameters, conditionals and match expressions.
-- _val_'s and parameters, expressions must be fixed at compile time to be inlinable.
-- The compiler guartantees inlining or fails to compile.
-- In Scala 2 the _@inline_ annotation was a hint to the compiler to inline if possible.
-
----
-
-### _inline_ Example
-
-```scala
-object Config:
-  inline val logging = false // RHS must be a constant expression (i.e. known at compile time)
-
-object Logger:
-  inline def log[T](msg: String)(op: => T): T =
-    if Config.logging // Config.logging is a constant condition known at compile time.
-      println(s"START: $msg")
-      val result = op
-      println(s"END: $msg; result = $result")
-      result
-    else
-      op
-```
-
-- _inline_ method _log_ will always be inlined at the points of call.
-- if-then-else with a constant condition will be rewritten to its then- or else-part.
-
----
-
-### Recursive Inline Methods
-
-```scala
-inline def power(x: Double, inline n: Int): Double = // for inlining n must be a constant.
-  if n == 0 then 1.0
-  else if n == 1 then x
-  else
-    val y = power(x, n / 2)
-    if n % 2 == 0 then y * y else y * y * x
-
-power(expr, 10)
-  // translates to:
-  //    val x = expr
-  //    val y1 = x * x   // ^2
-  //    val y2 = y1 * y1 // ^4
-  //    val y3 = y2 * x  // ^5
-  //    y3 * y3          // ^10
-```
-
----
-
-### _inline_ Conditionals
-
-- If the condition of an if-then-else expression is a constant expression then it simplifies to the selected branch.
-- When prefixing an if-then-else expression with inline the condition has to be a constant expression.
-- This guarantees that the conditional will always simplify.
-
-```scala
-inline def update(delta: Int) =
-  inline if delta >= 0 then increaseBy(delta)
-  else decreaseBy(-delta)
-```
-
-A call _update(22)_ would rewrite to _increaseBy(22)_ as 22 is a compile-time constant.
-If _update_ was not called with a constant, this code snippet doesn't compile.
-
----
-
-### Inline Matches
-
-- A match expression in the body of an inline method def may be prefixed by the inline modifier.
-- If there is enough static information to unambiguously take a branch, the expression is reduced to that branch.
-- Otherwise a compile-time error is raised that reports that the match cannot be reduced.
-
-```scala
-inline def g(x: Any) <: Any = inline x match
-  case x: String => (x, x) // return type: Tuple2[String, String](x, x)
-  case x: Double => x      // return type: Double
-
-val res1: Double = g(1.0d) // Has type 1.0d which is a subtype of Double
-val res2: (String, String) = g("test") // Has type (String, String)
-```
-
----
-
 <a name="ref_multiversial_equality"/>
 
 # Multiversial or Strict
-# Equality[^34] [^35]
+# Equality[^32] [^32a]
 
-[^34]: [https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
+[^32]: [https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html](https://dotty.epfl.ch/docs/reference/contextual/multiversal-equality.html)
 
-[^35]: [https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/](https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/)
+[^32a]: [https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/](https://heikoseeberger.rocks/2020/01/07/2020-01-07-dotty-4/)
 
 ---
 
@@ -1951,7 +1761,7 @@ Foo() == Option(Foo()) // false - but should not compile
 - Scala 3 gives you strict equality as an opt-in feature.
 - Import _scala.language.strictEquality_ or add _-language:strictEquality_ to scalacOptions.
 - Enabling this feature prevents successful compilation for all comparisons ...
-- ... with some exceptions: you can still compare numbers.
+- ... with some exceptions (see below).
   
 <br/>
 
@@ -2046,6 +1856,200 @@ Foo() == null                     // false
 
 ---
 
+<a name="ref_export_clauses"/>
+
+# Export Clauses[^33]
+
+[^33]: [https://dotty.epfl.ch/docs/reference/other-new-features/export.html](https://dotty.epfl.ch/docs/reference/other-new-features/export.html)
+
+---
+
+### Export Clauses a.k.a. Export Aliases
+
+- An export clause syntactically has the same format as an import clause.
+- An export clause defines aliases for selected members of an object.
+- Exported members are accessible from inside the object as well as from outside ...
+- ... even when the aliased object is private.
+- Export aliases encourage a best practice: Prefer composition over inheritance.
+- They also fill the gap left by deprecated/removed package objects which inherited from some class or trait.
+- A _given_ instance can also be exported, if the exported member is also tagged with _given_.
+
+---
+
+### Export Clauses
+
+```scala
+class A:
+  def a1 = 42
+  def a2 = a1.toString
+
+class B:
+  private val a = new A
+  export a.{a2 => aString} // exports a.a2 aliased to aString
+
+val b = new B
+
+// b.a.a1 and b.a.a2 are not directly accessible as a is private in B.
+// The export clause makes a.a2 (aliased to aString) accessible as a member of b.
+val bString = b.aString ensuring (_ == 42.toString)
+```
+
+---
+
+<a name="ref_match_types"/>
+
+# Match Types[^34]
+
+[^34]: [https://dotty.epfl.ch/docs/reference/new-types/match-types.html](https://dotty.epfl.ch/docs/reference/new-types/match-types.html)
+
+---
+
+### Match Types
+
+<br/>
+
+- Match types are _match_ expressions on the type level.
+- The syntax is analogous to _match_ expressions on the value level.
+- A match type reduces to one of a number of right hand sides, depending on the scrutinee type.
+
+---
+
+### Match Types
+
+```scala
+type Elem[X] = X match
+  case String => Char
+  case Array[t] => t
+  case Iterable[t] => t
+
+// proofs
+summon[Elem[String]       =:=  Char]
+summon[Elem[Array[Int]]   =:=  Int]
+summon[Elem[List[Float]]  =:=  Float]
+summon[Elem[Nil.type]     =:=  Nothing]
+```
+
+---
+
+### Recursive Match Types
+
+- Match types may be recursive.
+
+```scala
+type LeafElem[X] = X match
+  case String => Char
+  case Array[t] => LeafElem[t]
+  case Iterable[t] => LeafElem[t]
+  case AnyVal => X
+```
+
+<br/>
+
+- Recursive match types may have an upper bound.
+
+```scala
+type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
+  case EmptyTuple => Ys
+  case x *: xs => x *: Concat[xs, Ys]
+```
+
+---
+
+<a name="ref_inline"/>
+
+# _inline_[^35]
+
+[^35]: [https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html](https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html)
+
+---
+
+### _inline_
+
+- Scala 3 introduces a new modifier _inline_, to be used with ...
+- ... methods, _val_'s, parameters, conditionals and match expressions.
+- _val_'s and parameters, expressions must be fixed at compile time to be inlinable.
+- The compiler guartantees inlining or fails to compile.
+- In Scala 2 the _@inline_ annotation was a hint to the compiler to inline if possible.
+
+---
+
+### _inline_ Example
+
+```scala
+object Config:
+  inline val logging = false // RHS must be a constant expression (i.e. known at compile time)
+
+object Logger:
+  inline def log[T](msg: String)(op: => T): T =
+    if Config.logging // Config.logging is a constant condition known at compile time.
+      println(s"START: $msg")
+      val result = op
+      println(s"END: $msg; result = $result")
+      result
+    else
+      op
+```
+
+- _inline_ method _log_ will always be inlined at the points of call.
+- if-then-else with a constant condition will be rewritten to its then- or else-part.
+
+---
+
+### Recursive Inline Methods
+
+```scala
+inline def power(x: Double, inline n: Int): Double = // for inlining n must be a constant.
+  if n == 0 then 1.0
+  else if n == 1 then x
+  else
+    val y = power(x, n / 2)
+    if n % 2 == 0 then y * y else y * y * x
+
+power(expr, 10)
+  // translates to:
+  //    val x = expr
+  //    val y1 = x * x   // ^2
+  //    val y2 = y1 * y1 // ^4
+  //    val y3 = y2 * x  // ^5
+  //    y3 * y3          // ^10
+```
+
+---
+
+### _inline_ Conditionals
+
+- If the condition of an if-then-else expression is a constant expression then it simplifies to the selected branch.
+- When prefixing an if-then-else expression with inline the condition has to be a constant expression.
+- This guarantees that the conditional will always simplify.
+
+```scala
+inline def update(delta: Int) =
+  inline if delta >= 0 then increaseBy(delta)
+  else decreaseBy(-delta)
+```
+
+A call _update(22)_ would rewrite to _increaseBy(22)_ as 22 is a compile-time constant.
+If _update_ was not called with a constant, this code snippet doesn't compile.
+
+---
+
+### Inline Matches
+
+- A match expression in the body of an inline method def may be prefixed by the inline modifier.
+- If there is enough static information to unambiguously take a branch, the expression is reduced to that branch.
+- Otherwise a compile-time error is raised that reports that the match cannot be reduced.
+
+```scala
+inline def g(x: Any) <: Any = inline x match
+  case x: String => (x, x) // return type: Tuple2[String, String](x, x)
+  case x: Double => x      // return type: Double
+
+val res1: Double = g(1.0d) // Has type 1.0d which is a subtype of Double
+val res2: (String, String) = g("test") // Has type (String, String)
+```
+
+---
+
 <a name="ref_typeclass_derivation"/>
 
 # Typeclass Derivation[^36]
@@ -2057,7 +2061,7 @@ Foo() == null                     // false
 ### Typeclass Derivation
 
 - In Scala 2 type class derivation wasn't baked into the language.
-- Type class derivation was provided by 3rd party libraries: shapeless, Magnolia, scalaz-derived.
+- Type class derivation was provided by 3rd party libraries: _shapeless_, _Magnolia_.
 - These libraries were based on Scala 2 macros.
 
 <br/>

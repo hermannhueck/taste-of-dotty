@@ -8,12 +8,12 @@ object Geometry:
   object Length:
     def apply(d: Double): Length = d
     extension (length: Length)
-      def double: Double = length
+      def toDouble: Double = length
 
   object Area:
     def apply(d: Double): Area = d
     extension (area: Area)
-      def double: Double = area
+      def toDouble: Double = area
 
   enum Shape:
 
@@ -43,12 +43,12 @@ import Geometry.Shape.*
 
   // val cArea0: Double = circle.area // error: found: Area, required: Double
   val cArea: Area = circle.area
-  val cAreaDouble: Double = cArea.double
+  val cAreaDouble: Double = cArea.toDouble
   f"circle area: $cAreaDouble%.3f" pipe println
 
   // val cCircumference0: Double = circle.circumference // error: found: Length, required: Double
   val cCircumference: Length = circle.circumference
-  val cCircumferenceDouble: Double = cCircumference.double
+  val cCircumferenceDouble: Double = cCircumference.toDouble
   f"circle circumference: $cCircumferenceDouble%.3f" pipe println
 
   line().green pipe println

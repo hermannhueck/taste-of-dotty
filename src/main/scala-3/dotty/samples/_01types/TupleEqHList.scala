@@ -28,6 +28,8 @@ object TupleEqHList {
     println(s"isb1 ++ isb2: ${isb1 ++ isb2}") // (42,foo,true,42,foo,true)
     println(s"(isb1 ++ isb2).splitAt(2): ${(isb1 ++ isb2).splitAt(2)}") // ((42,foo),(true,42,foo,true))
     println(s"isb1.take(2): ${isb1.take(2)}") // (42,foo)
+    println(s"isb1.take(1): ${isb1.take(1)}") // (42)
+    println(s"isb1.take(0): ${isb1.take(0)}") // ()
     println(s"isb1.drop(1): ${isb1.drop(1)}") // (foo,true)
     println(s"isb1.zip(isb2): ${isb1.zip(isb2)}") // ((42,42),(foo,foo),(true,true))
     println(s"isb1.map([T] => (x: T) => Option[T](x)): ${isb1.map([T] => (x: T) => Option[T](x))}") // (Some(42),Some(foo),Some(true))
