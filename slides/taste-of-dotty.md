@@ -230,8 +230,18 @@ scalaVersion = "2.13.5"
 
 scalacOptions += "-Ytasty-reader" // supported by Scala 2.13.5 and higher
 
-libraryDependencies += "my.domain" %% "myScala3Lib" % myScala3LibVersion
+libraryDependencies += ("my.domain" %% "myScala3Lib" % myScala3LibVersion).cross(CrossVersion.for2_13Use3)
 ```
+
+---
+
+### Migration
+
+<br/>
+
+Comprehensive information about migration can be found in the ...<br/>
+### [Scala 3 Migration Guide](https://scalacenter.github.io/scala-3-migration-guide/)
+### [https://scalacenter.github.io/scala-3-migration-guide/](https://scalacenter.github.io/scala-3-migration-guide/)
 
 ---
 
